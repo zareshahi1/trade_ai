@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CryptoPricesResponse, PriceHistory } from '@/types/crypto';
 
-const API_URL = 'https://nof1.ai/api/crypto-prices';
+const API_URL = '/api/crypto-prices';
 const FETCH_INTERVAL = 5000; // 5 seconds
 const MAX_HISTORY_POINTS = 100; // Keep last 100 data points
 

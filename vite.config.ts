@@ -7,6 +7,14 @@ export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/api/crypto-prices': {
+        target: 'https://nof1.ai',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api\/crypto-prices/, '/api/crypto-prices'),
+      }
+    }
   },
   plugins: [dyadComponentTagger(), react()],
   resolve: {
