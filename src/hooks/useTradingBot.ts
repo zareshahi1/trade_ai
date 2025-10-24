@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Portfolio, Trade, AIDecision, TradingStrategy } from '@/types/trading';
 import { PortfolioManager } from '@/services/portfolioManager';
 import { TechnicalIndicators } from '@/services/technicalIndicators';
@@ -7,6 +7,9 @@ import { CryptoPricesResponse, PriceHistory } from '@/types/crypto';
 import { toast } from 'sonner';
 
 let portfolioManager: PortfolioManager;
+
+// Helper function to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const useTradingBot = (
   prices: CryptoPricesResponse | null,
@@ -29,6 +32,8 @@ export const useTradingBot = (
     confidence: number;
   }>>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const lastAnalysisTime = useRef<number>(0);
+  const ANALYSIS_COOLDOWN = 10000; // 10 seconds between full analysis cycles
 
   // Update strategy when it changes
   useEffect(() => {
@@ -40,6 +45,12 @@ export const useTradingBot = (
   const analyzeAndTrade = useCallback(async () => {
     if (!prices || !isEnabled || isAnalyzing) return;
 
+    // Check cooldown to prevent too frequent analysis
+    const now = Date.now();
+    if (now - lastAnalysisTime.current < ANALYSIS_COOLDOWN) {
+      return;
+    }
+
     // Check if API key is configured
     if (aiConfig.provider !== 'ollama' && !aiConfig.apiKey) {
       toast.error('لطفاً ابتدا کلید API را در تنظیمات وارد کنید');
@@ -47,13 +58,21 @@ export const useTradingBot = (
     }
 
     setIsAnalyzing(true);
+    lastAnalysisTime.current = now;
+    
     const aiService = new AIService(aiConfig);
     const currentPrices: Record<string, number> = {};
     const newDecisions: AIDecision[] = [];
     const newReports: typeof aiReports = [];
 
     try {
-      for (const [symbol, priceData] of Object.entries(prices.prices)) {
+      const symbols = Object.keys(prices.prices);
+      
+      // Process symbols one by one with delay to avoid rate limits
+      for (let i = 0; i < symbols.length; i++) {
+        const symbol = symbols[i];
+        const priceData = prices.prices[symbol];
+        
         currentPrices[symbol] = priceData.price;
         const history = priceHistory[symbol] || [];
         
@@ -65,8 +84,8 @@ export const useTradingBot = (
         const emaValues: number[] = [];
         const macdValues: number[] = [];
 
-        for (let i = 14; i < priceValues.length; i++) {
-          const slice = priceValues.slice(0, i + 1);
+        for (let j = 14; j < priceValues.length; j++) {
+          const slice = priceValues.slice(0, j + 1);
           rsi7Values.push(TechnicalIndicators.calculateRSI(slice, 7));
           rsi14Values.push(TechnicalIndicators.calculateRSI(slice, 14));
           emaValues.push(TechnicalIndicators.calculateEMA(slice, 20));
@@ -79,6 +98,11 @@ export const useTradingBot = (
         const currentMacd = TechnicalIndicators.calculateMACD(priceValues).macd;
 
         try {
+          // Add delay between API calls to respect rate limits
+          if (i > 0) {
+            await delay(2000); // 2 second delay between each API call
+          }
+
           const analysis = await aiService.analyzeMarket(
             symbol,
             priceData.price,
@@ -136,9 +160,17 @@ export const useTradingBot = (
               }
             }
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error(`خطا در تحلیل ${symbol}:`, error);
-          // Continue with next symbol
+          
+          // If rate limit error, stop processing more symbols
+          if (error.message?.includes('rate limit') || error.message?.includes('429')) {
+            toast.error('به محدودیت نرخ درخواست رسیدیم. لطفاً چند دقیقه صبر کنید');
+            break;
+          }
+          
+          // Continue with next symbol for other errors
+          continue;
         }
       }
 
@@ -146,6 +178,10 @@ export const useTradingBot = (
       setPortfolio(portfolioManager.getPortfolio());
       setDecisions(newDecisions);
       setAiReports(prev => [...newReports, ...prev].slice(0, 50));
+      
+      if (newDecisions.length > 0) {
+        toast.success(`تحلیل ${newDecisions.length} ارز دیجیتال کامل شد`);
+      }
     } catch (error) {
       console.error('خطا در تحلیل بازار:', error);
       toast.error('خطا در تحلیل بازار. لطفاً تنظیمات API را بررسی کنید');
@@ -155,7 +191,7 @@ export const useTradingBot = (
   }, [prices, priceHistory, isEnabled, aiConfig, portfolio.cash, portfolio.positions, isAnalyzing, strategy]);
 
   useEffect(() => {
-    if (isEnabled && prices) {
+    if (isEnabled && prices && !isAnalyzing) {
       analyzeAndTrade();
     }
   }, [prices, isEnabled]);

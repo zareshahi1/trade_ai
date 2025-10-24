@@ -19,6 +19,8 @@ export interface MarketAnalysis {
 
 export class AIService {
   private config: AIConfig;
+  private requestCount: number = 0;
+  private lastRequestTime: number = 0;
 
   constructor(config: AIConfig) {
     this.config = config;
@@ -51,12 +53,44 @@ export class AIService {
     );
 
     try {
-      const response = await this.callAI(prompt);
+      const response = await this.callAIWithRetry(prompt, 3);
       return this.parseResponse(response, price);
     } catch (error) {
       console.error('AI analysis failed:', error);
       return this.fallbackAnalysis(indicators, price);
     }
+  }
+
+  private async callAIWithRetry(prompt: string, maxRetries: number = 3): Promise<string> {
+    let lastError: Error | null = null;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // Add exponential backoff delay between retries
+        if (attempt > 0) {
+          const delayMs = Math.min(1000 * Math.pow(2, attempt), 10000);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+        
+        return await this.callAI(prompt);
+      } catch (error: any) {
+        lastError = error;
+        
+        // Don't retry on authentication errors
+        if (error.message?.includes('401') || error.message?.includes('403')) {
+          throw error;
+        }
+        
+        // Don't retry on rate limit errors, just throw
+        if (error.message?.includes('429') || error.message?.includes('rate limit')) {
+          throw new Error('محدودیت نرخ درخواست. لطفاً چند دقیقه صبر کنید');
+        }
+        
+        console.warn(`تلاش ${attempt + 1} از ${maxRetries} ناموفق بود:`, error.message);
+      }
+    }
+    
+    throw lastError || new Error('خطا در ارتباط با API');
   }
 
   private buildProfessionalPrompt(
@@ -127,6 +161,14 @@ ${currentPosition ? `
   private async callAI(prompt: string): Promise<string> {
     const { provider, apiKey, model, baseURL } = this.config;
 
+    // Rate limiting check
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    if (timeSinceLastRequest < 1000) {
+      await new Promise(resolve => setTimeout(resolve, 1000 - timeSinceLastRequest));
+    }
+    this.lastRequestTime = Date.now();
+
     if (provider === 'ollama') {
       return this.callOllama(prompt, model || 'llama2');
     }
@@ -140,7 +182,7 @@ ${currentPosition ? `
       : 'https://api.openai.com/v1/chat/completions');
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
       const response = await fetch(url, {
@@ -171,10 +213,16 @@ ${currentPosition ? `
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`خطای API هوش مصنوعی: ${response.statusText} - ${errorText}`);
+        
+        if (response.status === 429) {
+          throw new Error('محدودیت نرخ درخواست API');
+        }
+        
+        throw new Error(`خطای API هوش مصنوعی: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      this.requestCount++;
       return data.choices[0].message.content;
     } catch (error: any) {
       clearTimeout(timeoutId);
@@ -187,7 +235,7 @@ ${currentPosition ? `
 
   private async callOllama(prompt: string, model: string): Promise<string> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for local
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     try {
       const response = await fetch('http://localhost:11434/api/generate', {
