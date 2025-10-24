@@ -46,7 +46,7 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
             </div>
           )}
           <div className="text-xs text-muted-foreground">
-            Updated: {new Date(crypto.timestamp).toLocaleTimeString()}
+            به‌روزرسانی: {new Date(crypto.timestamp).toLocaleTimeString('fa-IR')}
           </div>
         </div>
       </CardContent>

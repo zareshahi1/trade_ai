@@ -10,7 +10,7 @@ interface CryptoChartProps {
 const CryptoChart = ({ symbol, data }: CryptoChartProps) => {
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
   };
 
   const formatPrice = (price: number) => {
@@ -32,7 +32,7 @@ const CryptoChart = ({ symbol, data }: CryptoChartProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{symbol} Price Chart</CardTitle>
+        <CardTitle>نمودار قیمت {symbol}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -49,8 +49,8 @@ const CryptoChart = ({ symbol, data }: CryptoChartProps) => {
               domain={['auto', 'auto']}
             />
             <Tooltip 
-              formatter={(value: number) => [formatPrice(value), 'Price']}
-              labelFormatter={(label) => `Time: ${label}`}
+              formatter={(value: number) => [formatPrice(value), 'قیمت']}
+              labelFormatter={(label) => `زمان: ${label}`}
             />
             <Line 
               type="monotone" 

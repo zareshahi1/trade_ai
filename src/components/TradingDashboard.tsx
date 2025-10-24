@@ -33,10 +33,10 @@ const TradingDashboard = ({
   onReset 
 }: TradingDashboardProps) => {
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat('fa-IR', {
+      style: 'decimal',
       minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(value);
   };
 
@@ -54,16 +54,17 @@ const TradingDashboard = ({
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
-                Portfolio
+                پرتفوی
               </CardTitle>
               <div className="flex items-center gap-3">
                 <Switch checked={isEnabled} onCheckedChange={onToggle} />
                 <Badge variant={isEnabled ? 'default' : 'secondary'}>
-                  {isEnabled ? 'Active' : 'Paused'}
+                  {isEnabled ? 'فعال' : 'غیرفعال'}
                 </Badge>
                 {isAnalyzing && <Loader2 className="w-4 h-4 animate-spin" />}
                 <Button variant="outline" size="sm" onClick={onReset}>
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-4 h-4 ml-2" />
+                  ریست
                 </Button>
               </div>
             </div>
@@ -71,21 +72,21 @@ const TradingDashboard = ({
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-xs text-muted-foreground">Total Value</p>
-                <p className="text-xl font-bold">{formatCurrency(portfolio.totalValue)}</p>
+                <p className="text-xs text-muted-foreground">ارزش کل</p>
+                <p className="text-xl font-bold">${formatCurrency(portfolio.totalValue)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Cash</p>
-                <p className="text-xl font-bold">{formatCurrency(portfolio.cash)}</p>
+                <p className="text-xs text-muted-foreground">موجودی نقد</p>
+                <p className="text-xl font-bold">${formatCurrency(portfolio.cash)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Return</p>
+                <p className="text-xs text-muted-foreground">بازدهی</p>
                 <p className={`text-xl font-bold ${portfolio.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatPercent(portfolio.totalReturn)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Positions</p>
+                <p className="text-xs text-muted-foreground">پوزیشن‌ها</p>
                 <p className="text-xl font-bold">{portfolio.positions.length}</p>
               </div>
             </div>
@@ -96,7 +97,7 @@ const TradingDashboard = ({
         {portfolio.positions.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Open Positions</CardTitle>
+              <CardTitle className="text-lg">پوزیشن‌های باز</CardTitle>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[200px]">
@@ -106,15 +107,15 @@ const TradingDashboard = ({
                       <div>
                         <p className="font-bold">{position.symbol}</p>
                         <p className="text-xs text-muted-foreground">
-                          {position.quantity} @ {formatCurrency(position.entryPrice)}
+                          {position.quantity} @ ${formatCurrency(position.entryPrice)}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left">
                         <p className={`font-bold text-sm ${position.unrealizedPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {formatCurrency(position.unrealizedPnl)}
+                          ${formatCurrency(position.unrealizedPnl)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {formatCurrency(position.currentPrice)}
+                          ${formatCurrency(position.currentPrice)}
                         </p>
                       </div>
                     </div>
@@ -129,7 +130,7 @@ const TradingDashboard = ({
         {portfolio.trades.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Recent Trades</CardTitle>
+              <CardTitle className="text-lg">معاملات اخیر</CardTitle>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[250px]">
@@ -145,16 +146,16 @@ const TradingDashboard = ({
                         <div>
                           <p className="font-bold text-sm">{trade.symbol}</p>
                           <p className="text-xs text-muted-foreground">
-                            {trade.quantity} @ {formatCurrency(trade.price)}
+                            {trade.quantity} @ ${formatCurrency(trade.price)}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left">
                         <p className="text-xs text-muted-foreground">
-                          {new Date(trade.timestamp).toLocaleTimeString()}
+                          {new Date(trade.timestamp).toLocaleTimeString('fa-IR')}
                         </p>
                         <p className="text-xs">
-                          {(trade.confidence * 100).toFixed(0)}% conf
+                          اطمینان: {(trade.confidence * 100).toFixed(0)}%
                         </p>
                       </div>
                     </div>
@@ -171,7 +172,7 @@ const TradingDashboard = ({
         {/* Current AI Decisions */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">AI Signals</CardTitle>
+            <CardTitle className="text-lg">سیگنال‌های هوش مصنوعی</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[300px]">
@@ -188,12 +189,12 @@ const TradingDashboard = ({
                         }
                         className="text-xs"
                       >
-                        {decision.action}
+                        {decision.action === 'BUY' ? 'خرید' : decision.action === 'SELL' ? 'فروش' : 'نگهداری'}
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">{decision.reasoning}</p>
                     <p className="text-xs font-medium">
-                      Confidence: {(decision.confidence * 100).toFixed(0)}%
+                      اطمینان: {(decision.confidence * 100).toFixed(0)}%
                     </p>
                   </div>
                 ))}
@@ -207,7 +208,7 @@ const TradingDashboard = ({
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Brain className="w-4 h-4" />
-              AI Analysis Reports
+              گزارش‌های تحلیل هوش مصنوعی
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -218,21 +219,21 @@ const TradingDashboard = ({
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm">{report.symbol}</span>
                       <Badge variant="outline" className="text-xs">
-                        {report.decision}
+                        {report.decision === 'BUY' ? 'خرید' : report.decision === 'SELL' ? 'فروش' : 'نگهداری'}
                       </Badge>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-xs font-medium text-muted-foreground">Chain of Thought:</p>
+                      <p className="text-xs font-medium text-muted-foreground">فرآیند تفکر:</p>
                       <p className="text-xs text-muted-foreground leading-relaxed">
                         {report.chainOfThought}
                       </p>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t">
                       <p className="text-xs text-muted-foreground">
-                        {new Date(report.timestamp).toLocaleString()}
+                        {new Date(report.timestamp).toLocaleString('fa-IR')}
                       </p>
                       <p className="text-xs font-medium">
-                        {(report.confidence * 100).toFixed(0)}% confidence
+                        اطمینان: {(report.confidence * 100).toFixed(0)}%
                       </p>
                     </div>
                   </div>
