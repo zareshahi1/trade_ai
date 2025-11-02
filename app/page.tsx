@@ -43,12 +43,9 @@ export default function Home() {
     }).format(value);
   };
 
-  const [exchangeConfig, setExchangeConfig] = useState<ExchangeConfig>(() => {
-    const saved = localStorage.getItem('trading-exchange-config');
-    return saved ? JSON.parse(saved) : {
-      type: 'wallex',
-      mode: 'demo',
-    };
+  const [exchangeConfig, setExchangeConfig] = useState<ExchangeConfig>({
+    type: 'wallex',
+    mode: 'demo',
   });
   const { prices, priceHistory, isLoading, error, isConnected, updateWallexApiKey } = useCryptoPrices();
   const [isBotEnabled, setIsBotEnabled] = useState(false);
@@ -58,13 +55,7 @@ export default function Home() {
     model: 'gpt-3.5-turbo'
   });
   const [strategy, setStrategy] = useState<TradingStrategy>(DEFAULT_STRATEGIES.moderate);
-  const [initialBalance, setInitialBalance] = useState<number>(() => {
-    const saved = localStorage.getItem('trading-initial-cash');
-    return saved ? Number(saved) : 10000;
-  });
-  const [orderBook, setOrderBook] = useState<OrderBook | null>(null);
-  const [selectedSymbol, setSelectedSymbol] = useState<string>('BTCUSDT');
-
+  const [initialBalance, setInitialBalance] = useState<number>(10000);
   const { portfolio, decisions, aiReports, isAnalyzing, resetPortfolio, getRiskMetrics } = useTradingBot(
     prices,
     priceHistory,
@@ -73,6 +64,23 @@ export default function Home() {
     strategy,
     initialBalance
   );
+
+  // Load initial data from localStorage after mount
+  useEffect(() => {
+    const savedExchangeConfig = localStorage.getItem('trading-exchange-config');
+    if (savedExchangeConfig) {
+      try {
+        setExchangeConfig(JSON.parse(savedExchangeConfig));
+      } catch (error) {
+        console.error('Error parsing saved exchange config:', error);
+      }
+    }
+
+    const savedInitialCash = localStorage.getItem('trading-initial-cash');
+    if (savedInitialCash) {
+      setInitialBalance(Number(savedInitialCash));
+    }
+  }, []);
 
   // Fetch order book when selected symbol changes
   useEffect(() => {

@@ -220,7 +220,7 @@ export const useTradingBot = (
     if (portfolioManager) {
       return portfolioManager.getRiskMetrics();
     }
-    return null;
+    return undefined;
   }, []);
 
   return {
