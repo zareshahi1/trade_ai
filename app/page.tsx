@@ -38,8 +38,8 @@ export default function Home() {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR', {
       style: 'decimal',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(value);
   };
 
@@ -202,7 +202,7 @@ export default function Home() {
                       ? 'persian-badge-success'
                       : 'persian-badge-danger'
                   }`}>
-                    {portfolio.totalReturn >= 0 ? '+' : ''}{toPersianNumbers(portfolio.totalReturn.toFixed(2))}%
+                    {portfolio.totalReturn >= 0 ? '+' : ''}{toPersianNumbers(portfolio.totalReturn.toFixed(0))}%
                   </div>
                   <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                     {toPersianNumbers(portfolio.positions.length)} پوزیشن
