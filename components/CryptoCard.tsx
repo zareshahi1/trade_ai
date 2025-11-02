@@ -18,7 +18,7 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
     } else if (price < 100) {
       return `$${price.toFixed(2)}`;
     } else {
-      return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return `$${price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
     }
   };
 

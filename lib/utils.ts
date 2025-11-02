@@ -45,7 +45,7 @@ export function formatPersianCurrency(amount: number, currency: string = 'توم
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'decimal',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 0,
   }).format(amount);
 
   return `${formatted} ${currency}`;
