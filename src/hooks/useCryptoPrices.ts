@@ -1,10 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CryptoPricesResponse, PriceHistory } from '@/types/crypto';
+import { CryptoPricesResponse, CryptoPrice, PriceHistory } from '@/types/crypto';
 
-const API_URL = 'https://api.binance.com/api/v3/ticker/price';
+const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
 const FETCH_INTERVAL = 5000; // 5 seconds
 const MAX_HISTORY_POINTS = 100; // Keep last 100 data points
-const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 'DOTUSDT'];
+const COINGECKO_IDS = ['bitcoin', 'ethereum', 'binancecoin', 'cardano', 'solana', 'polkadot'];
+const SYMBOL_MAP = {
+  bitcoin: 'BTC',
+  ethereum: 'ETH',
+  binancecoin: 'BNB',
+  cardano: 'ADA',
+  solana: 'SOL',
+  polkadot: 'DOT'
+};
 
 export const useCryptoPrices = () => {
   const [prices, setPrices] = useState<CryptoPricesResponse | null>(null);
@@ -13,20 +21,20 @@ export const useCryptoPrices = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchPrices = useCallback(async () => {
-    const symbolsParam = SYMBOLS.map(s => `"${s}"`).join(',');
-    const response = await fetch(`${API_URL}?symbols=[${symbolsParam}]`);
+    const idsParam = COINGECKO_IDS.join(',');
+    const response = await fetch(`${API_URL}?ids=${idsParam}&vs_currencies=usd`);
     if (!response.ok) {
       throw new Error('Failed to fetch crypto prices');
     }
     const data = await response.json();
 
-    // Transform Binance response to expected format
+    // Transform CoinGecko response to expected format
     const prices: { [key: string]: CryptoPrice } = {};
-    data.forEach((item: any) => {
-      const symbol = item.symbol.replace('USDT', ''); // Remove USDT suffix
+    Object.entries(data).forEach(([id, priceData]: [string, any]) => {
+      const symbol = SYMBOL_MAP[id as keyof typeof SYMBOL_MAP];
       prices[symbol] = {
         symbol,
-        price: parseFloat(item.price),
+        price: priceData.usd,
         timestamp: Date.now(),
       };
     });
