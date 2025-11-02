@@ -56,6 +56,8 @@ export default function Home() {
   });
   const [strategy, setStrategy] = useState<TradingStrategy>(DEFAULT_STRATEGIES.moderate);
   const [initialBalance, setInitialBalance] = useState<number>(10000);
+  const [orderBook, setOrderBook] = useState<OrderBook | null>(null);
+  const [selectedSymbol, setSelectedSymbol] = useState<string>('BTCUSDT');
   const { portfolio, decisions, aiReports, isAnalyzing, resetPortfolio, getRiskMetrics } = useTradingBot(
     prices,
     priceHistory,
