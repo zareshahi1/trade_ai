@@ -4,7 +4,9 @@ import { CryptoPricesResponse, CryptoPrice, PriceHistory } from '@/types/crypto'
 const WS_URL = 'wss://api.wallex.ir/ws';
 const WALLEX_API_BASE = 'https://api.wallex.ir';
 
-const HTTP_URL = `${WALLEX_API_BASE}/hector/web/v1/markets`;
+const HTTP_URL = process.env.NODE_ENV === 'development'
+  ? '/api/wallex/hector/web/v1/markets'
+  : `${WALLEX_API_BASE}/hector/web/v1/markets`;
 const MAX_HISTORY_POINTS = 100; // Keep last 100 data points
 const RECONNECT_INTERVAL = 5000; // 5 seconds
 const HTTP_POLL_INTERVAL = 300000; // 5 minutes for occasional sync (was 10 seconds)
