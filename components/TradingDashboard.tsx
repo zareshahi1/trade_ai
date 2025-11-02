@@ -42,7 +42,7 @@ const TradingDashboard = ({
   onReset
 }: TradingDashboardProps) => {
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fa-IR', {
+    return new Intl.NumberFormat('en-US', {
       style: 'decimal',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,

@@ -12,14 +12,14 @@ interface OrderBookProps {
 
 const OrderBook = ({ orderBook, symbol, currentPrice }: OrderBookProps) => {
   const formatNumber = (value: number) => {
-    return new Intl.NumberFormat('fa-IR', {
+    return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value);
   };
 
   const formatPrice = (value: number) => {
-    return new Intl.NumberFormat('fa-IR', {
+    return new Intl.NumberFormat('en-US', {
       style: 'decimal',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
