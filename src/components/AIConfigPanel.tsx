@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useAuth } from '@/hooks/useAuth';
 import { AIConfig, AIProvider } from '@/services/aiService';
 import { Brain, AlertCircle } from 'lucide-react';
 
@@ -12,7 +13,20 @@ interface AIConfigPanelProps {
 }
 
 const AIConfigPanel = ({ config, onChange }: AIConfigPanelProps) => {
+  const { user, updateApiKeys } = useAuth();
   const hasApiKey = config.provider === 'ollama' || (config.apiKey && config.apiKey.length > 0);
+
+  const updateAIConfig = async (updates: Partial<AIConfig>) => {
+    const newConfig = { ...config, ...updates };
+    onChange(newConfig);
+
+    // Save to Vercel KV if user is authenticated
+    if (user && updates.apiKey !== undefined) {
+      await updateApiKeys({
+        openai: updates.apiKey || ''
+      });
+    }
+  };
 
   return (
     <Card dir="rtl">
@@ -56,7 +70,7 @@ const AIConfigPanel = ({ config, onChange }: AIConfigPanelProps) => {
               type="password"
               placeholder="کلید API خود را وارد کنید"
               value={config.apiKey || ''}
-              onChange={(e) => onChange({ ...config, apiKey: e.target.value })}
+              onChange={(e) => updateAIConfig({ apiKey: e.target.value })}
               className="text-right"
             />
             <p className="text-xs text-muted-foreground text-right">

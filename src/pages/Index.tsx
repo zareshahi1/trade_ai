@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Bot, Activity, Target, FileText, BarChart3, Brain } from 'lucide-react';
 import { MadeWithDyad } from '@/components/made-with-dyad';
+import { AuthButton } from '@/components/AuthButton';
 import { AIConfig } from '@/services/aiService';
 import { TradingStrategy, DEFAULT_STRATEGIES } from '@/types/trading';
 import { ExchangeConfig, OrderBook } from '@/types/exchange';
@@ -193,6 +194,7 @@ const Index = () => {
                     {toPersianNumbers(portfolio.positions.length)} پوزیشن
                   </div>
                 </div>
+                <AuthButton />
               </div>
             </div>
           </div>

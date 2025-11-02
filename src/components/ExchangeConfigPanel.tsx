@@ -6,6 +6,8 @@ import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
+import { useAuth } from '@/hooks/useAuth';
+import { UserApiKeys } from '@/services/vercelStore';
 import { ExchangeConfig, ExchangeType, TradingMode } from '@/types/exchange';
 import { Building2, AlertCircle, Shield, Zap, DollarSign, Key } from 'lucide-react';
 
@@ -17,8 +19,51 @@ interface ExchangeConfigPanelProps {
 }
 
 const ExchangeConfigPanel = ({ config, onChange, initialBalance, onBalanceChange }: ExchangeConfigPanelProps) => {
+  const { user, updateApiKeys } = useAuth();
   const isLiveMode = config.mode === 'live';
   const hasCredentials = config.credentials?.apiKey && config.credentials?.apiSecret;
+
+  const updateCredentials = async (updates: Partial<ExchangeConfig['credentials']>) => {
+    const newCredentials = { ...config.credentials, ...updates };
+    const newConfig = { ...config, credentials: newCredentials };
+    onChange(newConfig);
+
+    // Save to Vercel KV if user is authenticated
+    if (user) {
+      const apiKeys: Partial<UserApiKeys> = {};
+      if (config.type === 'binance') {
+        apiKeys.binance = {
+          apiKey: newCredentials.apiKey || '',
+          secretKey: newCredentials.apiSecret || ''
+        };
+      } else if (config.type === 'bybit') {
+        apiKeys.bybit = {
+          apiKey: newCredentials.apiKey || '',
+          secretKey: newCredentials.apiSecret || ''
+        };
+      } else if (config.type === 'okx') {
+        apiKeys.okx = {
+          apiKey: newCredentials.apiKey || '',
+          secretKey: newCredentials.apiSecret || '',
+          passphrase: newCredentials.passphrase || ''
+        };
+      } else if (config.type === 'kucoin') {
+        apiKeys.kucoin = {
+          apiKey: newCredentials.apiKey || '',
+          secretKey: newCredentials.apiSecret || '',
+          passphrase: newCredentials.passphrase || ''
+        };
+      } else if (config.type === 'wallex') {
+        apiKeys.wallex = {
+          apiKey: newCredentials.apiKey || ''
+        };
+      }
+
+      if (Object.keys(apiKeys).length > 0) {
+        await updateApiKeys(apiKeys);
+      }
+    }
+  };
 
   const presetBalances = [1000, 5000, 10000, 25000, 50000, 100000];
 
@@ -236,16 +281,7 @@ const ExchangeConfigPanel = ({ config, onChange, initialBalance, onBalanceChange
                 type="password"
                 placeholder="کلید API خود را وارد کنید"
                 value={config.credentials?.apiKey || ''}
-                onChange={(e) =>
-                  onChange({
-                    ...config,
-                    credentials: {
-                      ...config.credentials,
-                      apiKey: e.target.value,
-                      apiSecret: config.credentials?.apiSecret || '',
-                    },
-                  })
-                }
+                onChange={(e) => updateCredentials({ apiKey: e.target.value })}
                 className="text-right"
               />
             </div>
@@ -256,16 +292,7 @@ const ExchangeConfigPanel = ({ config, onChange, initialBalance, onBalanceChange
                 type="password"
                 placeholder="کلید محرمانه خود را وارد کنید"
                 value={config.credentials?.apiSecret || ''}
-                onChange={(e) =>
-                  onChange({
-                    ...config,
-                    credentials: {
-                      ...config.credentials,
-                      apiKey: config.credentials?.apiKey || '',
-                      apiSecret: e.target.value,
-                    },
-                  })
-                }
+                onChange={(e) => updateCredentials({ apiSecret: e.target.value })}
                 className="text-right"
               />
             </div>
@@ -274,17 +301,7 @@ const ExchangeConfigPanel = ({ config, onChange, initialBalance, onBalanceChange
               <Label className="text-right">استفاده از Testnet (شبکه آزمایشی)</Label>
               <Switch className="switch"
                 checked={config.credentials?.testnet || false}
-                onCheckedChange={(checked) =>
-                  onChange({
-                    ...config,
-                    credentials: {
-                      ...config.credentials,
-                      apiKey: config.credentials?.apiKey || '',
-                      apiSecret: config.credentials?.apiSecret || '',
-                      testnet: checked,
-                    },
-                  })
-                }
+                  onCheckedChange={(checked) => updateCredentials({ testnet: checked })}
               />
             </div>
           </>

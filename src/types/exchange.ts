@@ -4,6 +4,7 @@ export type TradingMode = 'demo' | 'live';
 export interface ExchangeCredentials {
   apiKey: string;
   apiSecret: string;
+  passphrase?: string;
   testnet?: boolean;
 }
 
