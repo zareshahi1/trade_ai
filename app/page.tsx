@@ -183,7 +183,7 @@ export default function Home() {
                       <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                       <span>آنلاین</span>
                     </div>
-                    <span>بروزرسانی: {new Date().toLocaleTimeString('en-US')}</span>
+                    <span>بروزرسانی: {new Date().toLocaleTimeString('fa-IR')}</span>
                   </div>
                 </div>
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
@@ -207,11 +207,10 @@ export default function Home() {
                   <div className="text-xs text-gray-600">ارزش پرتفوی</div>
                 </div>
                 <div className="flex gap-2">
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    portfolio.totalReturn >= 0
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${portfolio.totalReturn >= 0
                       ? 'persian-badge-success'
                       : 'persian-badge-danger'
-                  }`}>
+                    }`}>
                     {portfolio.totalReturn >= 0 ? '+' : ''}{portfolio.totalReturn.toFixed(0)}%
                   </div>
                   <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
@@ -252,168 +251,168 @@ export default function Home() {
           </div>
         </div>
 
-          {/* Enhanced Navigation */}
-          <Tabs defaultValue="trading" className="space-y-4 sm:space-y-6">
-            <div className="flex justify-center px-2 sm:px-0">
-              <TabsList className="tabs-list flex flex-nowrap gap-2 w-full max-w-5xl bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-1 shadow-lg overflow-x-auto overflow-y-hidden min-h-[48px]">
-                 <TabsTrigger
-                   value="trading"
-                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
-                 >
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>معاملات</span>
-                  </div>
-                </TabsTrigger>
-                 <TabsTrigger
-                   value="exchange"
-                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
-                 >
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>صرافی</span>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="strategy"
-                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
-                >
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <Target className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>استراتژی</span>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="reports"
-                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
-                >
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>گزارشات</span>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="market"
-                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
-                >
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>بازار</span>
-                  </div>
-                </TabsTrigger>
-                 <TabsTrigger
-                   value="config"
-                    className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
-                 >
-                   <div className="flex items-center gap-1 sm:gap-2">
-                     <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
-                     <span>تنظیمات AI</span>
-                   </div>
-                 </TabsTrigger>
-                 <TabsTrigger
-                   value="bots"
-                    className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
-                 >
-                   <div className="flex items-center gap-1 sm:gap-2">
-                     <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
-                     <span>ربات‌ها</span>
-                   </div>
-                 </TabsTrigger>
-              </TabsList>
+        {/* Enhanced Navigation */}
+        <Tabs defaultValue="trading" className="space-y-4 sm:space-y-6">
+          <div className="flex justify-center px-2 sm:px-0">
+            <TabsList className="tabs-list flex flex-nowrap gap-2 w-full max-w-5xl bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-1 shadow-lg overflow-x-auto overflow-y-hidden min-h-[48px]">
+              <TabsTrigger
+                value="trading"
+                className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+              >
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>معاملات</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger
+                value="exchange"
+                className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+              >
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>صرافی</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger
+                value="strategy"
+                className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+              >
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Target className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>استراتژی</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger
+                value="reports"
+                className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+              >
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>گزارشات</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger
+                value="market"
+                className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+              >
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>بازار</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger
+                value="config"
+                className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+              >
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>تنظیمات AI</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger
+                value="bots"
+                className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+              >
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>ربات‌ها</span>
+                </div>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="trading">
+            <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+              <TradingDashboard
+                portfolio={portfolio}
+                decisions={decisions}
+                aiReports={aiReports}
+                orderBook={orderBook}
+                selectedSymbol={selectedSymbol}
+                prices={prices}
+                isEnabled={isBotEnabled}
+                isAnalyzing={isAnalyzing}
+                onToggle={setIsBotEnabled}
+                onReset={resetPortfolio}
+              />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="exchange">
+            <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+              <ExchangeConfigPanel
+                config={exchangeConfig}
+                onChange={setExchangeConfig}
+                initialBalance={initialBalance}
+                onBalanceChange={handleBalanceChange}
+              />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="strategy">
+            <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+              <StrategySelector strategy={strategy} onChange={setStrategy} />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+              <TradingReports
+                portfolio={portfolio}
+                aiReports={aiReports}
+                riskMetrics={getRiskMetrics()}
+              />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="market" className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {prices && cryptoSymbols.map((symbol) => {
+                const crypto = prices.prices[symbol];
+                const history = priceHistory[symbol] || [];
+                const previousPrice = history.length > 1 ? history[history.length - 2].price : undefined;
+
+                return (
+                  <Suspense key={symbol} fallback={<div className="h-32 bg-gray-100 rounded-lg animate-pulse" />}>
+                    <CryptoCard
+                      crypto={crypto}
+                      previousPrice={previousPrice}
+                    />
+                  </Suspense>
+                );
+              })}
             </div>
 
-           <TabsContent value="trading">
-             <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-                <TradingDashboard
-                  portfolio={portfolio}
-                  decisions={decisions}
-                  aiReports={aiReports}
-                  orderBook={orderBook}
-                  selectedSymbol={selectedSymbol}
-                  prices={prices}
-                  isEnabled={isBotEnabled}
-                  isAnalyzing={isAnalyzing}
-                  onToggle={setIsBotEnabled}
-                  onReset={resetPortfolio}
-                />
-             </Suspense>
-           </TabsContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+              {cryptoSymbols.map((symbol) => {
+                const history = priceHistory[symbol] || [];
+                if (history.length < 2) return null;
 
-            <TabsContent value="exchange">
+                return (
+                  <Suspense key={symbol} fallback={<div className="h-64 bg-gray-100 rounded-lg animate-pulse" />}>
+                    <CryptoChart
+                      symbol={symbol}
+                      data={history}
+                    />
+                  </Suspense>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="config">
+            <div className="max-w-2xl">
               <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-                <ExchangeConfigPanel
-                  config={exchangeConfig}
-                  onChange={setExchangeConfig}
-                  initialBalance={initialBalance}
-                  onBalanceChange={handleBalanceChange}
-                />
+                <AIConfigPanel config={aiConfig} onChange={setAiConfig} />
               </Suspense>
-            </TabsContent>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="strategy">
-              <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-                <StrategySelector strategy={strategy} onChange={setStrategy} />
-              </Suspense>
-            </TabsContent>
-
-           <TabsContent value="reports">
-             <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-                <TradingReports
-                  portfolio={portfolio}
-                  aiReports={aiReports}
-                  riskMetrics={getRiskMetrics()}
-                />
-             </Suspense>
-           </TabsContent>
-
-            <TabsContent value="market" className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-               {prices && cryptoSymbols.map((symbol) => {
-                 const crypto = prices.prices[symbol];
-                 const history = priceHistory[symbol] || [];
-                 const previousPrice = history.length > 1 ? history[history.length - 2].price : undefined;
-
-                 return (
-                   <Suspense key={symbol} fallback={<div className="h-32 bg-gray-100 rounded-lg animate-pulse" />}>
-                     <CryptoCard
-                       crypto={crypto}
-                       previousPrice={previousPrice}
-                     />
-                   </Suspense>
-                 );
-               })}
-             </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
-               {cryptoSymbols.map((symbol) => {
-                 const history = priceHistory[symbol] || [];
-                 if (history.length < 2) return null;
-
-                 return (
-                   <Suspense key={symbol} fallback={<div className="h-64 bg-gray-100 rounded-lg animate-pulse" />}>
-                     <CryptoChart
-                       symbol={symbol}
-                       data={history}
-                     />
-                   </Suspense>
-                 );
-               })}
-             </div>
-           </TabsContent>
-
-            <TabsContent value="config">
-              <div className="max-w-2xl">
-                <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-                  <AIConfigPanel config={aiConfig} onChange={setAiConfig} />
-                </Suspense>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="bots">
-              <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-                <TradingBotManager />
-              </Suspense>
-            </TabsContent>
+          <TabsContent value="bots">
+            <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+              <TradingBotManager />
+            </Suspense>
+          </TabsContent>
         </Tabs>
 
         <MadeWithDyad />
