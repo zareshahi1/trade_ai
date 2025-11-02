@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCryptoPrices } from '@/hooks/useCryptoPrices';
 import { useTradingBot } from '@/hooks/useTradingBot';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,7 +34,8 @@ const TradingReports = lazy(() => import('@/components/TradingReports'));
 const TradingBotManager = lazy(() => import('@/components/TradingBotManager'));
 
 export default function Home() {
-  const { user, signOut } = useAuth();
+  const router = useRouter();
+  const { user, signOut, loading } = useAuth();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -84,64 +86,12 @@ export default function Home() {
     }
   }, []);
 
-  // Fetch order book when selected symbol changes
+  // Redirect to login if not authenticated
   useEffect(() => {
-    const fetchOrderBook = async () => {
-      if (!selectedSymbol || exchangeConfig.mode === 'demo') {
-        // Mock order book for demo mode
-        const basePrice = prices?.prices[selectedSymbol]?.price || 50000;
-        const bids = [];
-        const asks = [];
-        let bidTotal = 0;
-        let askTotal = 0;
-
-        for (let i = 0; i < 20; i++) {
-          const bidPrice = basePrice - (i + 1) * 10;
-          const bidQuantity = Math.random() * 2 + 0.1;
-          bidTotal += bidQuantity;
-          bids.push({ price: bidPrice, quantity: bidQuantity, total: bidTotal });
-
-          const askPrice = basePrice + (i + 1) * 10;
-          const askQuantity = Math.random() * 2 + 0.1;
-          askTotal += askQuantity;
-          asks.push({ price: askPrice, quantity: askQuantity, total: askTotal });
-        }
-
-        setOrderBook({ bids, asks, lastUpdate: Date.now() });
-        return;
-      }
-
-      try {
-        const { ExchangeService } = await import('@/services/exchangeService');
-        const exchangeService = new ExchangeService(exchangeConfig);
-        const book = await exchangeService.getOrderBook(selectedSymbol);
-        setOrderBook(book);
-      } catch (error) {
-        console.error('Error fetching order book:', error);
-        setOrderBook(null);
-      }
-    };
-
-    fetchOrderBook();
-    // Refresh order book every 5 seconds
-    const interval = setInterval(fetchOrderBook, 5000);
-    return () => clearInterval(interval);
-  }, [selectedSymbol, exchangeConfig, prices]);
-
-  const handleBalanceChange = (balance: number) => {
-    setInitialBalance(balance);
-    localStorage.setItem('trading-initial-cash', balance.toString());
-  };
-
-  // Update Wallex API key when exchange config changes
-  useEffect(() => {
-    updateWallexApiKey(exchangeConfig.wallexApiKey);
-  }, [exchangeConfig.wallexApiKey, updateWallexApiKey]);
-
-  // Save exchange config to localStorage
-  useEffect(() => {
-    localStorage.setItem('trading-exchange-config', JSON.stringify(exchangeConfig));
-  }, [exchangeConfig]);
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
 
   if (isLoading) {
     return (
@@ -240,7 +190,7 @@ export default function Home() {
                       </div>
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={signOut} className="text-right">
+                    <DropdownMenuItem onClick={async () => { await signOut(); router.push('/login'); }} className="text-right">
                       <LogOut className="w-4 h-4 mr-2" />
                       خروج
                     </DropdownMenuItem>
