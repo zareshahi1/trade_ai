@@ -105,25 +105,29 @@ export const useTradingBot = (
         const currentEma20 = TechnicalIndicators.calculateEMA(priceValues, 20);
         const currentMacd = TechnicalIndicators.calculateMACD(priceValues).macd;
 
+        // Calculate multi-timeframe indicators (assuming 1-minute intervals)
+        const multiTimeframeIndicators = TechnicalIndicators.calculateMultiTimeframeIndicators(priceValues, 1);
+
         try {
           // Add delay between API calls to respect rate limits
           if (i > 0) {
             await delay(2000); // 2 second delay between each API call
           }
 
-          const analysis = await aiService.analyzeMarket(
-            symbol,
-            priceData.price,
-            {
-              rsi7: currentRsi7,
-              rsi14: currentRsi14,
-              macd: currentMacd,
-              ema20: currentEma20,
-              priceHistory: priceValues,
-              emaHistory: emaValues,
-              macdHistory: macdValues,
-              rsiHistory: rsi7Values
-            },
+           const analysis = await aiService.analyzeMarket(
+             symbol,
+             priceData.price,
+             {
+               rsi7: currentRsi7,
+               rsi14: currentRsi14,
+               macd: currentMacd,
+               ema20: currentEma20,
+               priceHistory: priceValues,
+               emaHistory: emaValues,
+               macdHistory: macdValues,
+               rsiHistory: rsi7Values,
+               multiTimeframe: multiTimeframeIndicators
+             },
             portfolio.positions,
             portfolio.totalValue,
             portfolio.cash
@@ -212,11 +216,19 @@ export const useTradingBot = (
     toast.success('پرتفوی ریست شد');
   }, []);
 
+  const getRiskMetrics = useCallback(() => {
+    if (portfolioManager) {
+      return portfolioManager.getRiskMetrics();
+    }
+    return null;
+  }, []);
+
   return {
     portfolio,
     decisions,
     aiReports,
     isAnalyzing,
     resetPortfolio,
+    getRiskMetrics,
   };
 };

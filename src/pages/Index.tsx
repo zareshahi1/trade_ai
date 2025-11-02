@@ -1,22 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useCryptoPrices } from '@/hooks/useCryptoPrices';
 import { useTradingBot } from '@/hooks/useTradingBot';
-import CryptoCard from '@/components/CryptoCard';
-import CryptoChart from '@/components/CryptoChart';
-import TradingDashboard from '@/components/TradingDashboard';
-import AIConfigPanel from '@/components/AIConfigPanel';
-import ExchangeConfigPanel from '@/components/ExchangeConfigPanel';
-import StrategySelector from '@/components/StrategySelector';
-import TradingReports from '@/components/TradingReports';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Bot } from 'lucide-react';
+import { Loader2, Bot, Activity, Target, FileText, BarChart3, Brain } from 'lucide-react';
 import { MadeWithDyad } from '@/components/made-with-dyad';
 import { AIConfig } from '@/services/aiService';
 import { TradingStrategy, DEFAULT_STRATEGIES } from '@/types/trading';
-import { ExchangeConfig } from '@/types/exchange';
+import { ExchangeConfig, OrderBook } from '@/types/exchange';
+import { getPersianGreeting, formatPersianDateTime, toPersianNumbers } from '@/lib/utils';
+
+// Lazy load heavy components for better performance
+const CryptoCard = lazy(() => import('@/components/CryptoCard'));
+const CryptoChart = lazy(() => import('@/components/CryptoChart'));
+const TradingDashboard = lazy(() => import('@/components/TradingDashboard'));
+const AIConfigPanel = lazy(() => import('@/components/AIConfigPanel'));
+const ExchangeConfigPanel = lazy(() => import('@/components/ExchangeConfigPanel'));
+const StrategySelector = lazy(() => import('@/components/StrategySelector'));
+const TradingReports = lazy(() => import('@/components/TradingReports'));
 
 const Index = () => {
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('fa-IR', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
+
   const [exchangeConfig, setExchangeConfig] = useState<ExchangeConfig>(() => {
     const saved = localStorage.getItem('trading-exchange-config');
     return saved ? JSON.parse(saved) : {
@@ -36,8 +47,10 @@ const Index = () => {
     const saved = localStorage.getItem('trading-initial-cash');
     return saved ? Number(saved) : 10000;
   });
+  const [orderBook, setOrderBook] = useState<OrderBook | null>(null);
+  const [selectedSymbol, setSelectedSymbol] = useState<string>('BTCUSDT');
 
-  const { portfolio, decisions, aiReports, isAnalyzing, resetPortfolio } = useTradingBot(
+  const { portfolio, decisions, aiReports, isAnalyzing, resetPortfolio, getRiskMetrics } = useTradingBot(
     prices,
     priceHistory,
     isBotEnabled,
@@ -45,6 +58,50 @@ const Index = () => {
     strategy,
     initialBalance
   );
+
+  // Fetch order book when selected symbol changes
+  useEffect(() => {
+    const fetchOrderBook = async () => {
+      if (!selectedSymbol || exchangeConfig.mode === 'demo') {
+        // Mock order book for demo mode
+        const basePrice = prices?.prices[selectedSymbol]?.price || 50000;
+        const bids = [];
+        const asks = [];
+        let bidTotal = 0;
+        let askTotal = 0;
+
+        for (let i = 0; i < 20; i++) {
+          const bidPrice = basePrice - (i + 1) * 10;
+          const bidQuantity = Math.random() * 2 + 0.1;
+          bidTotal += bidQuantity;
+          bids.push({ price: bidPrice, quantity: bidQuantity, total: bidTotal });
+
+          const askPrice = basePrice + (i + 1) * 10;
+          const askQuantity = Math.random() * 2 + 0.1;
+          askTotal += askQuantity;
+          asks.push({ price: askPrice, quantity: askQuantity, total: askTotal });
+        }
+
+        setOrderBook({ bids, asks, lastUpdate: Date.now() });
+        return;
+      }
+
+      try {
+        const { ExchangeService } = await import('@/services/exchangeService');
+        const exchangeService = new ExchangeService(exchangeConfig);
+        const book = await exchangeService.getOrderBook(selectedSymbol);
+        setOrderBook(book);
+      } catch (error) {
+        console.error('Error fetching order book:', error);
+        setOrderBook(null);
+      }
+    };
+
+    fetchOrderBook();
+    // Refresh order book every 5 seconds
+    const interval = setInterval(fetchOrderBook, 5000);
+    return () => clearInterval(interval);
+  }, [selectedSymbol, exchangeConfig, prices]);
 
   const handleBalanceChange = (balance: number) => {
     setInitialBalance(balance);
@@ -85,100 +142,209 @@ const Index = () => {
   const cryptoSymbols = prices ? Object.keys(prices.prices) : [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-2 sm:p-3 md:p-4 lg:p-6" dir="rtl">
       <div className="max-w-[1600px] mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-            <Bot className="w-8 h-8 text-blue-600" />
-            ربات معاملاتی هوش مصنوعی
-          </h1>
-          <p className="text-gray-600">معامله خودکار ارزهای دیجیتال با تحلیل هوش مصنوعی</p>
+        {/* Compact Header */}
+        <div className="mb-4 sm:mb-6 persian-fade-in">
+          <div className="persian-card p-3 sm:p-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+              <div className="text-right flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                  <div className="text-sm text-gray-500 text-center sm:text-right">
+                    {getPersianGreeting()}! 👋
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-1 text-green-600">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                      <span>آنلاین</span>
+                    </div>
+                    <span>بروزرسانی: {toPersianNumbers(new Date().toLocaleTimeString('fa-IR'))}</span>
+                  </div>
+                </div>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <div className="p-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg shadow-md self-center sm:self-auto">
+                    <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  </div>
+                  <span className="text-center sm:text-right">ربات معاملاتی هوش مصنوعی</span>
+                </h1>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <p className="text-gray-600 text-sm sm:text-base persian-spacing">معامله خودکار ارزهای دیجیتال با تحلیل پیشرفته هوش مصنوعی</p>
+                  <div className="text-xs text-gray-500 italic text-center sm:text-right">
+                    "صبوری کلید موفقیت است" - حکیم سعدی
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 lg:flex-col lg:gap-1 lg:items-end">
+                <div className="text-center lg:text-right">
+                  <div className="text-lg sm:text-xl font-bold text-gray-900 persian-number">
+                    ${toPersianNumbers(formatCurrency(portfolio.totalValue))}
+                  </div>
+                  <div className="text-xs text-gray-600">ارزش پرتفوی</div>
+                </div>
+                <div className="flex gap-2">
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    portfolio.totalReturn >= 0
+                      ? 'persian-badge-success'
+                      : 'persian-badge-danger'
+                  }`}>
+                    {portfolio.totalReturn >= 0 ? '+' : ''}{toPersianNumbers(portfolio.totalReturn.toFixed(2))}%
+                  </div>
+                  <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                    {toPersianNumbers(portfolio.positions.length)} پوزیشن
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <Tabs defaultValue="trading" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6 max-w-4xl">
-            <TabsTrigger value="trading">معاملات</TabsTrigger>
-            <TabsTrigger value="exchange">صرافی</TabsTrigger>
-            <TabsTrigger value="strategy">استراتژی</TabsTrigger>
-            <TabsTrigger value="reports">گزارشات</TabsTrigger>
-            <TabsTrigger value="market">بازار</TabsTrigger>
-            <TabsTrigger value="config">تنظیمات AI</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="trading">
-            <TradingDashboard
-              portfolio={portfolio}
-              decisions={decisions}
-              aiReports={aiReports}
-              isEnabled={isBotEnabled}
-              isAnalyzing={isAnalyzing}
-              onToggle={setIsBotEnabled}
-              onReset={resetPortfolio}
-            />
-          </TabsContent>
-
-          <TabsContent value="exchange">
-            <div className="max-w-2xl">
-              <ExchangeConfigPanel 
-                config={exchangeConfig} 
-                onChange={setExchangeConfig}
-                initialBalance={initialBalance}
-                onBalanceChange={handleBalanceChange}
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="strategy">
-            <div className="max-w-2xl">
-              <StrategySelector strategy={strategy} onChange={setStrategy} />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="reports">
-            <TradingReports
-              portfolio={portfolio}
-              aiReports={aiReports}
-            />
-          </TabsContent>
-
-          <TabsContent value="market" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {prices && cryptoSymbols.map((symbol) => {
-                const crypto = prices.prices[symbol];
-                const history = priceHistory[symbol] || [];
-                const previousPrice = history.length > 1 ? history[history.length - 2].price : undefined;
-                
-                return (
-                  <CryptoCard 
-                    key={symbol} 
-                    crypto={crypto} 
-                    previousPrice={previousPrice}
-                  />
-                );
-              })}
+          {/* Enhanced Navigation */}
+          <Tabs defaultValue="trading" className="space-y-4 sm:space-y-6">
+            <div className="flex justify-center px-2 sm:px-0">
+              <TabsList className="tabs-list flex flex-nowrap gap-2 w-full max-w-5xl bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-1 shadow-lg overflow-x-auto overflow-y-hidden min-h-[48px]">
+                 <TabsTrigger
+                   value="trading"
+                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+                 >
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>معاملات</span>
+                  </div>
+                </TabsTrigger>
+                 <TabsTrigger
+                   value="exchange"
+                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+                 >
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>صرافی</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="strategy"
+                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+                >
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Target className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>استراتژی</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="reports"
+                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+                >
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>گزارشات</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="market"
+                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+                >
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>بازار</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="config"
+                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+                >
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>تنظیمات AI</span>
+                  </div>
+                </TabsTrigger>
+              </TabsList>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {cryptoSymbols.map((symbol) => {
-                const history = priceHistory[symbol] || [];
-                if (history.length < 2) return null;
-                
-                return (
-                  <CryptoChart 
-                    key={symbol} 
-                    symbol={symbol} 
-                    data={history}
-                  />
-                );
-              })}
-            </div>
-          </TabsContent>
+           <TabsContent value="trading">
+             <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+                <TradingDashboard
+                  portfolio={portfolio}
+                  decisions={decisions}
+                  aiReports={aiReports}
+                  orderBook={orderBook}
+                  selectedSymbol={selectedSymbol}
+                  prices={prices}
+                  isEnabled={isBotEnabled}
+                  isAnalyzing={isAnalyzing}
+                  onToggle={setIsBotEnabled}
+                  onReset={resetPortfolio}
+                />
+             </Suspense>
+           </TabsContent>
 
-          <TabsContent value="config">
-            <div className="max-w-2xl">
-              <AIConfigPanel config={aiConfig} onChange={setAiConfig} />
-            </div>
-          </TabsContent>
+            <TabsContent value="exchange">
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+                <ExchangeConfigPanel
+                  config={exchangeConfig}
+                  onChange={setExchangeConfig}
+                  initialBalance={initialBalance}
+                  onBalanceChange={handleBalanceChange}
+                />
+              </Suspense>
+            </TabsContent>
+
+            <TabsContent value="strategy">
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+                <StrategySelector strategy={strategy} onChange={setStrategy} />
+              </Suspense>
+            </TabsContent>
+
+           <TabsContent value="reports">
+             <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+                <TradingReports
+                  portfolio={portfolio}
+                  aiReports={aiReports}
+                  riskMetrics={getRiskMetrics()}
+                />
+             </Suspense>
+           </TabsContent>
+
+            <TabsContent value="market" className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+               {prices && cryptoSymbols.map((symbol) => {
+                 const crypto = prices.prices[symbol];
+                 const history = priceHistory[symbol] || [];
+                 const previousPrice = history.length > 1 ? history[history.length - 2].price : undefined;
+
+                 return (
+                   <Suspense key={symbol} fallback={<div className="h-32 bg-gray-100 rounded-lg animate-pulse" />}>
+                     <CryptoCard
+                       crypto={crypto}
+                       previousPrice={previousPrice}
+                     />
+                   </Suspense>
+                 );
+               })}
+             </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+               {cryptoSymbols.map((symbol) => {
+                 const history = priceHistory[symbol] || [];
+                 if (history.length < 2) return null;
+
+                 return (
+                   <Suspense key={symbol} fallback={<div className="h-64 bg-gray-100 rounded-lg animate-pulse" />}>
+                     <CryptoChart
+                       symbol={symbol}
+                       data={history}
+                     />
+                   </Suspense>
+                 );
+               })}
+             </div>
+           </TabsContent>
+
+           <TabsContent value="config">
+             <div className="max-w-2xl">
+               <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+                 <AIConfigPanel config={aiConfig} onChange={setAiConfig} />
+               </Suspense>
+             </div>
+           </TabsContent>
         </Tabs>
 
         <MadeWithDyad />

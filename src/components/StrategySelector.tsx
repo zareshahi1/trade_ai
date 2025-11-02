@@ -129,6 +129,7 @@ const StrategySelector = ({ strategy, onChange }: StrategySelectorProps) => {
           <div className="flex items-center justify-between">
             <Label className="text-right">حد ضرر متحرک</Label>
             <Switch
+              className="switch"
               checked={strategy.useTrailingStop}
               onCheckedChange={(checked) => handleCustomChange('useTrailingStop', checked)}
             />
@@ -153,6 +154,7 @@ const StrategySelector = ({ strategy, onChange }: StrategySelectorProps) => {
           <div className="flex items-center justify-between">
             <Label className="text-right">میانگین‌گیری هزینه (DCA)</Label>
             <Switch
+              className="switch"
               checked={strategy.useDCA}
               onCheckedChange={(checked) => handleCustomChange('useDCA', checked)}
             />
@@ -177,6 +179,7 @@ const StrategySelector = ({ strategy, onChange }: StrategySelectorProps) => {
           <div className="flex items-center justify-between">
             <Label className="text-right">اسکالپینگ (معاملات سریع)</Label>
             <Switch
+              className="switch"
               checked={strategy.useScalping}
               onCheckedChange={(checked) => handleCustomChange('useScalping', checked)}
             />
@@ -201,6 +204,7 @@ const StrategySelector = ({ strategy, onChange }: StrategySelectorProps) => {
           <div className="flex items-center justify-between">
             <Label className="text-right">تنوع‌بخشی پرتفوی</Label>
             <Switch
+              className="switch"
               checked={strategy.diversification}
               onCheckedChange={(checked) => handleCustomChange('diversification', checked)}
             />
@@ -210,6 +214,7 @@ const StrategySelector = ({ strategy, onChange }: StrategySelectorProps) => {
           <div className="flex items-center justify-between">
             <Label className="text-right">زمان‌بندی بازار</Label>
             <Switch
+              className="switch"
               checked={strategy.useMarketTiming}
               onCheckedChange={(checked) => handleCustomChange('useMarketTiming', checked)}
             />
@@ -219,6 +224,7 @@ const StrategySelector = ({ strategy, onChange }: StrategySelectorProps) => {
             <div className="flex items-center justify-between mr-4">
               <Label className="text-sm text-right">اجتناب از آخر هفته</Label>
               <Switch
+                className="switch"
                 checked={strategy.avoidWeekends}
                 onCheckedChange={(checked) => handleCustomChange('avoidWeekends', checked)}
               />

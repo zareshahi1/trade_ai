@@ -25,10 +25,11 @@ export interface ExchangeOrder {
   orderId: string;
   symbol: string;
   side: 'BUY' | 'SELL';
-  type: 'MARKET' | 'LIMIT';
+  type: 'MARKET' | 'LIMIT' | 'STOP_LOSS' | 'TAKE_PROFIT' | 'STOP_LOSS_LIMIT' | 'TAKE_PROFIT_LIMIT';
   quantity: number;
   price?: number;
-  status: 'NEW' | 'FILLED' | 'PARTIALLY_FILLED' | 'CANCELED';
+  stopPrice?: number;
+  status: 'NEW' | 'FILLED' | 'PARTIALLY_FILLED' | 'CANCELED' | 'TRIGGERED';
   timestamp: number;
 }
 
@@ -41,4 +42,16 @@ export interface ExchangePosition {
   leverage: number;
   unrealizedPnl: number;
   liquidationPrice?: number;
+}
+
+export interface OrderBookEntry {
+  price: number;
+  quantity: number;
+  total: number;
+}
+
+export interface OrderBook {
+  bids: OrderBookEntry[];
+  asks: OrderBookEntry[];
+  lastUpdate: number;
 }

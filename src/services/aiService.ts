@@ -38,6 +38,7 @@ export class AIService {
       emaHistory: number[];
       macdHistory: number[];
       rsiHistory: number[];
+      multiTimeframe?: import('./technicalIndicators').MultiTimeframeIndicators;
     },
     currentPositions: any[],
     portfolioValue: number,
@@ -102,7 +103,31 @@ export class AIService {
     cash: number
   ): string {
     const currentPosition = positions.find(p => p.symbol === symbol);
-    
+
+    let multiTimeframeSection = '';
+    if (indicators.multiTimeframe) {
+      const timeframes = Object.entries(indicators.multiTimeframe);
+      const avgStrength = timeframes.length > 0
+        ? timeframes.reduce((sum, [, data]: [string, any]) => sum + (data.strength || 0), 0) / timeframes.length
+        : 0;
+
+      multiTimeframeSection = `
+تحلیل چند تایم‌فریمی:
+${timeframes.map(([timeframe, data]: [string, any]) => `
+${timeframe}:
+- روند: ${data.trend === 'bullish' ? 'صعودی' : data.trend === 'bearish' ? 'نزولی' : 'خنثی'}
+- قدرت روند: ${data.strength.toFixed(1)}/100
+- RSI(7): ${data.rsi7.toFixed(2)}, RSI(14): ${data.rsi14.toFixed(2)}
+- EMA(20): $${data.ema20.toFixed(2)}, EMA(50): $${data.ema50.toFixed(2)}
+- MACD: ${data.macd.toFixed(3)}, سیگنال: ${data.macdSignal.toFixed(3)}
+`).join('')}
+
+تحلیل کلی روند:
+- جهت کلی: ${(timeframes[0]?.[1] as any)?.trend === 'bullish' ? 'صعودی' : 'نزولی'}
+- قدرت کلی: ${avgStrength.toFixed(1)}/100
+`;
+    }
+
     return `شما یک معامله‌گر حرفه‌ای ارزهای دیجیتال هستید که در حال تحلیل ${symbol} می‌باشید. لطفاً یک تصمیم معاملاتی دقیق ارائه دهید.
 
 وضعیت فعلی بازار برای ${symbol}
@@ -110,7 +135,7 @@ export class AIService {
 EMA(20) فعلی: $${indicators.ema20.toFixed(2)}
 MACD فعلی: ${indicators.macd.toFixed(3)}
 RSI(7) فعلی: ${indicators.rsi7.toFixed(2)}
-RSI(14) فعلی: ${indicators.rsi14.toFixed(2)}
+RSI(14) فعلی: ${indicators.rsi14.toFixed(2)}${multiTimeframeSection}
 
 تاریخچه قیمت در بازه زمانی کوتاه (قدیمی‌ترین → جدیدترین):
 ${indicators.priceHistory.slice(-10).map((p: number) => p.toFixed(2)).join(', ')}

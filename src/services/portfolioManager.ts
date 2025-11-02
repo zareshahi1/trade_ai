@@ -246,6 +246,146 @@ export class PortfolioManager {
     localStorage.setItem('trading-portfolio', JSON.stringify(this.portfolio));
   }
 
+  calculateVaR(confidenceLevel: number = 0.95, timeHorizon: number = 1): number {
+    // Simplified VaR calculation using historical volatility
+    // In a real implementation, this would use more sophisticated models
+    const returns: number[] = [];
+
+    // Calculate daily returns from trades
+    for (let i = 1; i < this.portfolio.trades.length; i++) {
+      const currentTrade = this.portfolio.trades[i];
+      const previousTrade = this.portfolio.trades[i - 1];
+      const returnPct = ((currentTrade.price - previousTrade.price) / previousTrade.price) * 100;
+      returns.push(returnPct);
+    }
+
+    if (returns.length < 2) {
+      // Not enough data, use conservative estimate
+      return this.portfolio.totalValue * 0.05; // 5% VaR
+    }
+
+    // Calculate standard deviation of returns
+    const mean = returns.reduce((sum, ret) => sum + ret, 0) / returns.length;
+    const variance = returns.reduce((sum, ret) => sum + Math.pow(ret - mean, 2), 0) / returns.length;
+    const stdDev = Math.sqrt(variance);
+
+    // VaR using normal distribution approximation
+    // For 95% confidence, z-score is approximately 1.645
+    const zScore = confidenceLevel === 0.95 ? 1.645 : confidenceLevel === 0.99 ? 2.326 : 1.96;
+    const varAmount = this.portfolio.totalValue * (stdDev / 100) * zScore * Math.sqrt(timeHorizon);
+
+    return Math.abs(varAmount);
+  }
+
+  calculateSharpeRatio(riskFreeRate: number = 0.02): number {
+    if (this.portfolio.trades.length < 2) return 0;
+
+    // Calculate portfolio returns
+    const returns: number[] = [];
+    for (let i = 1; i < this.portfolio.trades.length; i++) {
+      const currentTrade = this.portfolio.trades[i];
+      const previousTrade = this.portfolio.trades[i - 1];
+      const returnPct = ((currentTrade.price - previousTrade.price) / previousTrade.price) * 100;
+      returns.push(returnPct);
+    }
+
+    const avgReturn = returns.reduce((sum, ret) => sum + ret, 0) / returns.length;
+    const variance = returns.reduce((sum, ret) => sum + Math.pow(ret - avgReturn, 2), 0) / returns.length;
+    const stdDev = Math.sqrt(variance);
+
+    if (stdDev === 0) return 0;
+
+    // Annualized Sharpe ratio (assuming daily returns)
+    const annualizedReturn = avgReturn * 252; // 252 trading days
+    const annualizedStdDev = stdDev * Math.sqrt(252);
+    const annualizedRiskFreeRate = riskFreeRate * 252;
+
+    return (annualizedReturn - annualizedRiskFreeRate) / annualizedStdDev;
+  }
+
+  calculateMaxDrawdown(): { maxDrawdown: number; peak: number; trough: number } {
+    if (this.portfolio.trades.length < 2) {
+      return { maxDrawdown: 0, peak: this.initialCash, trough: this.initialCash };
+    }
+
+    let peak = this.initialCash;
+    let maxDrawdown = 0;
+    let trough = this.initialCash;
+
+    // Calculate portfolio value over time
+    const portfolioValues: number[] = [this.initialCash];
+    let currentValue = this.initialCash;
+
+    this.portfolio.trades.forEach(trade => {
+      if (trade.type === 'BUY') {
+        currentValue -= trade.quantity * trade.price;
+      } else {
+        currentValue += trade.quantity * trade.price;
+      }
+      portfolioValues.push(currentValue);
+    });
+
+    // Calculate drawdown
+    portfolioValues.forEach(value => {
+      if (value > peak) {
+        peak = value;
+        trough = value;
+      } else if (value < trough) {
+        trough = value;
+        const drawdown = (peak - trough) / peak;
+        if (drawdown > maxDrawdown) {
+          maxDrawdown = drawdown;
+        }
+      }
+    });
+
+    return { maxDrawdown: maxDrawdown * 100, peak, trough };
+  }
+
+  getRiskMetrics(): {
+    var95: number;
+    sharpeRatio: number;
+    maxDrawdown: number;
+    winRate: number;
+    profitFactor: number;
+  } {
+    const winningTrades = this.portfolio.trades.filter(trade => {
+      const position = this.portfolio.positions.find(p => p.symbol === trade.symbol);
+      if (!position) return false;
+      return trade.type === 'SELL' && trade.price > position.entryPrice;
+    });
+
+    const losingTrades = this.portfolio.trades.filter(trade => {
+      const position = this.portfolio.positions.find(p => p.symbol === trade.symbol);
+      if (!position) return false;
+      return trade.type === 'SELL' && trade.price < position.entryPrice;
+    });
+
+    const winRate = this.portfolio.trades.length > 0
+      ? (winningTrades.length / this.portfolio.trades.length) * 100
+      : 0;
+
+    const totalProfit = winningTrades.reduce((sum, trade) => {
+      const position = this.portfolio.positions.find(p => p.symbol === trade.symbol);
+      return sum + (position ? (trade.price - position.entryPrice) * trade.quantity : 0);
+    }, 0);
+
+    const totalLoss = Math.abs(losingTrades.reduce((sum, trade) => {
+      const position = this.portfolio.positions.find(p => p.symbol === trade.symbol);
+      return sum + (position ? (trade.price - position.entryPrice) * trade.quantity : 0);
+    }, 0));
+
+    const profitFactor = totalLoss > 0 ? totalProfit / totalLoss : totalProfit > 0 ? Infinity : 0;
+
+    return {
+      var95: this.calculateVaR(0.95),
+      sharpeRatio: this.calculateSharpeRatio(),
+      maxDrawdown: this.calculateMaxDrawdown().maxDrawdown,
+      winRate,
+      profitFactor,
+    };
+  }
+
   private saveInitialCash(): void {
     localStorage.setItem('trading-initial-cash', this.initialCash.toString());
   }

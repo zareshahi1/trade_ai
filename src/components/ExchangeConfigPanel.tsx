@@ -272,7 +272,7 @@ const ExchangeConfigPanel = ({ config, onChange, initialBalance, onBalanceChange
 
             <div className="flex items-center justify-between">
               <Label className="text-right">استفاده از Testnet (شبکه آزمایشی)</Label>
-              <Switch
+              <Switch className="switch"
                 checked={config.credentials?.testnet || false}
                 onCheckedChange={(checked) =>
                   onChange({

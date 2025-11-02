@@ -23,9 +23,16 @@ interface TradingReportsProps {
     decision: string;
     confidence: number;
   }>;
+  riskMetrics?: {
+    var95: number;
+    sharpeRatio: number;
+    maxDrawdown: number;
+    winRate: number;
+    profitFactor: number;
+  };
 }
 
-const TradingReports = ({ portfolio, aiReports }: TradingReportsProps) => {
+const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR', {
       style: 'decimal',
@@ -80,73 +87,275 @@ const TradingReports = ({ portfolio, aiReports }: TradingReportsProps) => {
   }, {} as Record<string, typeof portfolio.trades>);
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6 persian-fade-in" dir="rtl">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2 text-right">
-              <Activity className="w-4 h-4 text-blue-600" />
-              کل معاملات
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="persian-card hover:scale-105 transition-all duration-300">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-sm font-medium flex items-center gap-3 text-right">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg">
+                <Activity className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-gray-900">کل معاملات</div>
+                <div className="text-xs text-gray-600">آمار کلی</div>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="text-right">
-            <div className="text-2xl font-bold">{totalTrades}</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {buyTrades} خرید / {sellTrades} فروش
+            <div className="text-3xl font-bold persian-number text-blue-700 mb-2">{totalTrades}</div>
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-1 text-green-600">
+                <TrendingUp className="w-3 h-3" />
+                <span>{buyTrades}</span>
+              </div>
+              <div className="flex items-center gap-1 text-red-600">
+                <TrendingDown className="w-3 h-3" />
+                <span>{sellTrades}</span>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2 text-right">
-              <Target className="w-4 h-4 text-green-600" />
-              نرخ موفقیت
+        <Card className="persian-card hover:scale-105 transition-all duration-300">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-sm font-medium flex items-center gap-3 text-right">
+              <div className="p-2 bg-gradient-to-r from-green-500 to-green-600 rounded-lg">
+                <Target className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-gray-900">نرخ موفقیت</div>
+                <div className="text-xs text-gray-600">درصد برد</div>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="text-right">
-            <div className="text-2xl font-bold">{winRate.toFixed(1)}%</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {winningTrades} معامله سودده
+            <div className="text-3xl font-bold persian-number text-green-700 mb-2">
+              {winRate.toFixed(1)}%
+            </div>
+            <div className="text-sm text-gray-600">
+              {winningTrades} معامله سودده از {sellTrades} فروش
+            </div>
+            <div className="w-full bg-green-200 rounded-full h-2 mt-2">
+              <div
+                className="bg-green-600 h-2 rounded-full transition-all duration-500"
+                style={{width: `${winRate}%`}}
+              ></div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2 text-right">
-              <DollarSign className="w-4 h-4 text-purple-600" />
-              سود/زیان کل
+        <Card className="persian-card hover:scale-105 transition-all duration-300">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-sm font-medium flex items-center gap-3 text-right">
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg">
+                <DollarSign className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-gray-900">سود/زیان</div>
+                <div className="text-xs text-gray-600">P&L کل</div>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="text-right">
-            <div className={`text-2xl font-bold ${totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-3xl font-bold persian-number mb-2 ${
+              totalPnL >= 0 ? 'text-green-700' : 'text-red-700'
+            }`}>
               ${formatCurrency(totalPnL)}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="text-sm text-gray-600">
               از پوزیشن‌های باز
+            </div>
+            <div className={`w-full rounded-full h-2 mt-2 ${
+              totalPnL >= 0 ? 'bg-green-200' : 'bg-red-200'
+            }`}>
+              <div
+                className={`h-2 rounded-full transition-all duration-500 ${
+                  totalPnL >= 0 ? 'bg-green-600' : 'bg-red-600'
+                }`}
+                style={{width: `${Math.min(Math.abs(totalPnL) / 1000 * 100, 100)}%`}}
+              ></div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2 text-right">
-              <BarChart3 className="w-4 h-4 text-orange-600" />
-              بازدهی کل
+        <Card className="persian-card hover:scale-105 transition-all duration-300">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-sm font-medium flex items-center gap-3 text-right">
+              <div className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg">
+                <BarChart3 className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-gray-900">بازدهی کل</div>
+                <div className="text-xs text-gray-600">عملکرد پرتفوی</div>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="text-right">
-            <div className={`text-2xl font-bold ${portfolio.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-3xl font-bold persian-number mb-2 ${
+              portfolio.totalReturn >= 0 ? 'text-green-700' : 'text-red-700'
+            }`}>
               {formatPercent(portfolio.totalReturn)}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              ارزش پرتفوی: ${formatCurrency(portfolio.totalValue)}
+            <div className="text-sm text-gray-600">
+              ارزش: ${formatCurrency(portfolio.totalValue)}
+            </div>
+            <div className={`w-full rounded-full h-2 mt-2 ${
+              portfolio.totalReturn >= 0 ? 'bg-green-200' : 'bg-red-200'
+            }`}>
+              <div
+                className={`h-2 rounded-full transition-all duration-500 ${
+                  portfolio.totalReturn >= 0 ? 'bg-green-600' : 'bg-red-600'
+                }`}
+                style={{width: `${Math.min(Math.abs(portfolio.totalReturn), 100)}%`}}
+              ></div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Risk Management Metrics */}
+      {riskMetrics && (
+        <Card className="persian-card">
+          <CardHeader className="pb-6">
+            <CardTitle className="flex items-center gap-3 text-right">
+              <div className="p-2 bg-gradient-to-r from-red-500 to-red-600 rounded-xl shadow-lg">
+                <AlertCircle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">معیارهای مدیریت ریسک</h3>
+                <p className="text-sm text-gray-600 persian-spacing">ارزیابی ریسک و عملکرد</p>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+              <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl border border-red-200/50 hover:shadow-lg transition-all duration-300">
+                <div className="text-3xl font-bold text-red-700 persian-number mb-2">
+                  ${formatCurrency(riskMetrics.var95)}
+                </div>
+                <div className="text-sm font-medium text-red-600 mb-1">
+                  VaR 95% (یک روزه)
+                </div>
+                <div className="text-xs text-gray-600 persian-spacing">
+                  حداکثر زیان احتمالی
+                </div>
+                <div className="w-full bg-red-200 rounded-full h-1 mt-3">
+                  <div className="bg-red-600 h-1 rounded-full" style={{width: '100%'}}></div>
+                </div>
+              </div>
+
+              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${
+                riskMetrics.sharpeRatio >= 1
+                  ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200/50'
+                  : riskMetrics.sharpeRatio >= 0
+                  ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200/50'
+                  : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
+              }`}>
+                <div className={`text-3xl font-bold persian-number mb-2 ${
+                  riskMetrics.sharpeRatio >= 1 ? 'text-green-700' :
+                  riskMetrics.sharpeRatio >= 0 ? 'text-yellow-700' : 'text-red-700'
+                }`}>
+                  {riskMetrics.sharpeRatio.toFixed(2)}
+                </div>
+                <div className={`text-sm font-medium mb-1 ${
+                  riskMetrics.sharpeRatio >= 1 ? 'text-green-600' :
+                  riskMetrics.sharpeRatio >= 0 ? 'text-yellow-600' : 'text-red-600'
+                }`}>
+                  نسبت شارپ
+                </div>
+                <div className="text-xs text-gray-600 persian-spacing">
+                  بازدهی به ازای ریسک
+                </div>
+                <div className={`w-full rounded-full h-1 mt-3 ${
+                  riskMetrics.sharpeRatio >= 1 ? 'bg-green-200' :
+                  riskMetrics.sharpeRatio >= 0 ? 'bg-yellow-200' : 'bg-red-200'
+                }`}>
+                  <div className={`h-1 rounded-full ${
+                    riskMetrics.sharpeRatio >= 1 ? 'bg-green-600' :
+                    riskMetrics.sharpeRatio >= 0 ? 'bg-yellow-600' : 'bg-red-600'
+                  }`} style={{width: `${Math.min(Math.abs(riskMetrics.sharpeRatio) * 20, 100)}%`}}></div>
+                </div>
+              </div>
+
+              <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl border border-red-200/50 hover:shadow-lg transition-all duration-300">
+                <div className="text-3xl font-bold text-red-700 persian-number mb-2">
+                  {riskMetrics.maxDrawdown.toFixed(2)}%
+                </div>
+                <div className="text-sm font-medium text-red-600 mb-1">
+                  حداکثر افت
+                </div>
+                <div className="text-xs text-gray-600 persian-spacing">
+                  بزرگترین کاهش ارزش
+                </div>
+                <div className="w-full bg-red-200 rounded-full h-1 mt-3">
+                  <div className="bg-red-600 h-1 rounded-full" style={{width: `${riskMetrics.maxDrawdown}%`}}></div>
+                </div>
+              </div>
+
+              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${
+                riskMetrics.winRate >= 50
+                  ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200/50'
+                  : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
+              }`}>
+                <div className={`text-3xl font-bold persian-number mb-2 ${
+                  riskMetrics.winRate >= 50 ? 'text-green-700' : 'text-red-700'
+                }`}>
+                  {riskMetrics.winRate.toFixed(1)}%
+                </div>
+                <div className={`text-sm font-medium mb-1 ${
+                  riskMetrics.winRate >= 50 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  نرخ برد
+                </div>
+                <div className="text-xs text-gray-600 persian-spacing">
+                  معاملات موفق
+                </div>
+                <div className={`w-full rounded-full h-1 mt-3 ${
+                  riskMetrics.winRate >= 50 ? 'bg-green-200' : 'bg-red-200'
+                }`}>
+                  <div className={`h-1 rounded-full ${
+                    riskMetrics.winRate >= 50 ? 'bg-green-600' : 'bg-red-600'
+                  }`} style={{width: `${riskMetrics.winRate}%`}}></div>
+                </div>
+              </div>
+
+              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${
+                riskMetrics.profitFactor >= 1.5
+                  ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200/50'
+                  : riskMetrics.profitFactor >= 1
+                  ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200/50'
+                  : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
+              }`}>
+                <div className={`text-3xl font-bold persian-number mb-2 ${
+                  riskMetrics.profitFactor >= 1.5 ? 'text-green-700' :
+                  riskMetrics.profitFactor >= 1 ? 'text-yellow-700' : 'text-red-700'
+                }`}>
+                  {riskMetrics.profitFactor === Infinity ? '∞' : riskMetrics.profitFactor.toFixed(2)}
+                </div>
+                <div className={`text-sm font-medium mb-1 ${
+                  riskMetrics.profitFactor >= 1.5 ? 'text-green-600' :
+                  riskMetrics.profitFactor >= 1 ? 'text-yellow-600' : 'text-red-600'
+                }`}>
+                  فاکتور سود
+                </div>
+                <div className="text-xs text-gray-600 persian-spacing">
+                  سود به ازای زیان
+                </div>
+                <div className={`w-full rounded-full h-1 mt-3 ${
+                  riskMetrics.profitFactor >= 1.5 ? 'bg-green-200' :
+                  riskMetrics.profitFactor >= 1 ? 'bg-yellow-200' : 'bg-red-200'
+                }`}>
+                  <div className={`h-1 rounded-full ${
+                    riskMetrics.profitFactor >= 1.5 ? 'bg-green-600' :
+                    riskMetrics.profitFactor >= 1 ? 'bg-yellow-600' : 'bg-red-600'
+                  }`} style={{width: `${Math.min(riskMetrics.profitFactor * 20, 100)}%`}}></div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Detailed Reports */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
