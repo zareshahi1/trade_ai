@@ -9,8 +9,11 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth()
 
+  console.log('🔐 ProtectedRoute:', { loading, hasUser: !!user, userEmail: user?.email })
+
   // Show loading spinner while checking authentication
   if (loading) {
+    console.log('⏳ Showing loading spinner...')
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="text-center">
@@ -23,9 +26,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Redirect to login if not authenticated
   if (!user) {
+    console.log('🚪 No user found, redirecting to login...')
     return <Navigate to="/login" replace />
   }
 
+  console.log('✅ User authenticated, rendering protected content')
   // Render the protected content
   return <>{children}</>
 }

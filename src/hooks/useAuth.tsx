@@ -35,19 +35,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [apiKeys, setApiKeys] = useState<UserApiKeys | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession()
-      if (error) {
-        console.error('Error getting session:', error)
-      } else {
-        setSession(session)
-        setUser(session?.user ?? null)
-        if (session?.user) {
-          await loadUserApiKeys(session.user.id)
+      console.log('🔄 Starting initial session check...')
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('📋 Session check result:', { hasSession: !!session, hasError: !!error })
+
+        if (error) {
+          console.error('❌ Error getting session:', error)
+        } else {
+          if (isMounted) {
+            setSession(session)
+            setUser(session?.user ?? null)
+            console.log('✅ Session loaded:', session?.user?.email)
+
+            if (session?.user) {
+              // Load API keys asynchronously without blocking loading state
+              loadUserApiKeys(session.user.id).catch(error => {
+                console.error('❌ Error loading API keys:', error)
+              })
+            }
+          }
+        }
+      } catch (error) {
+        console.error('💥 Unexpected error getting session:', error)
+      } finally {
+        console.log('🏁 Setting loading to false')
+        if (isMounted) {
+          setLoading(false)
         }
       }
-      setLoading(false)
     }
 
     getInitialSession()
@@ -56,25 +76,54 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email)
-        setSession(session)
-        setUser(session?.user ?? null)
+        if (isMounted) {
+          setSession(session)
+          setUser(session?.user ?? null)
 
-        if (session?.user) {
-          await loadUserApiKeys(session.user.id)
-        } else {
-          setApiKeys(null)
+          if (session?.user) {
+            // Load API keys asynchronously without blocking loading state
+            loadUserApiKeys(session.user.id).catch(error => {
+              console.error('Error loading API keys:', error)
+            })
+          } else {
+            setApiKeys(null)
+          }
+
+          setLoading(false)
         }
-
-        setLoading(false)
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [])
+
+  // Fallback: ensure loading is set to false after 15 seconds max
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn('⚠️ Loading timeout reached, forcing loading to false')
+        setLoading(false)
+      }
+    }, 15000)
+
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const loadUserApiKeys = async (userId: string) => {
     try {
-      const keys = await supabaseStore.getUserApiKeys(userId)
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('API key loading timeout')), 10000)
+      })
+
+      const keys = await Promise.race([
+        supabaseStore.getUserApiKeys(userId),
+        timeoutPromise
+      ]) as UserApiKeys | null
+
       setApiKeys(keys)
     } catch (error) {
       console.error('Error loading API keys:', error)
