@@ -8,24 +8,15 @@ export class PortfolioManager {
 
   constructor(strategy?: TradingStrategy, initialBalance?: number) {
     this.initialCash = initialBalance || 10000;
-    
-    const savedPortfolio = localStorage.getItem('trading-portfolio');
-    const savedInitialCash = localStorage.getItem('trading-initial-cash');
-    
-    if (savedPortfolio && savedInitialCash) {
-      this.portfolio = JSON.parse(savedPortfolio);
-      this.initialCash = Number(savedInitialCash);
-    } else {
-      this.portfolio = {
-        cash: this.initialCash,
-        totalValue: this.initialCash,
-        positions: [],
-        trades: [],
-        totalReturn: 0,
-      };
-      this.saveInitialCash();
-    }
-    
+
+    this.portfolio = {
+      cash: this.initialCash,
+      totalValue: this.initialCash,
+      positions: [],
+      trades: [],
+      totalReturn: 0,
+    };
+
     this.strategy = strategy || {
       name: 'متعادل',
       riskPerTrade: 2,
@@ -42,6 +33,16 @@ export class PortfolioManager {
       maxLeverage: 10,
       diversification: true,
     };
+  }
+
+  loadFromStorage() {
+    const savedPortfolio = localStorage.getItem('trading-portfolio');
+    const savedInitialCash = localStorage.getItem('trading-initial-cash');
+
+    if (savedPortfolio && savedInitialCash) {
+      this.portfolio = JSON.parse(savedPortfolio);
+      this.initialCash = Number(savedInitialCash);
+    }
   }
 
   setInitialBalance(balance: number) {
