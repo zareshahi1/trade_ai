@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase, auth } from '@/lib/supabase'
-import { vercelStore, UserApiKeys } from '@/services/vercelStore'
+import { supabaseStore, UserApiKeys } from '@/services/supabaseStore'
 
 interface AuthContextType {
   user: User | null
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const loadUserApiKeys = async (userId: string) => {
     try {
-      const keys = await vercelStore.getUserApiKeys(userId)
+      const keys = await supabaseStore.getUserApiKeys(userId)
       setApiKeys(keys)
     } catch (error) {
       console.error('Error loading API keys:', error)
@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const updateApiKeys = async (keys: UserApiKeys): Promise<boolean> => {
     if (!user) return false
 
-    const success = await vercelStore.setUserApiKeys(user.id, keys)
+    const success = await supabaseStore.setUserApiKeys(user.id, keys)
     if (success) {
       setApiKeys(keys)
     }

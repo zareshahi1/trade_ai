@@ -1,11 +1,20 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useCryptoPrices } from '@/hooks/useCryptoPrices';
 import { useTradingBot } from '@/hooks/useTradingBot';
+import { useAuth } from '@/hooks/useAuth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Bot, Activity, Target, FileText, BarChart3, Brain } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { Loader2, Bot, Activity, Target, FileText, BarChart3, Brain, LogOut, User } from 'lucide-react';
 import { MadeWithDyad } from '@/components/made-with-dyad';
-import { AuthButton } from '@/components/AuthButton';
 import { AIConfig } from '@/services/aiService';
 import { TradingStrategy, DEFAULT_STRATEGIES } from '@/types/trading';
 import { ExchangeConfig, OrderBook } from '@/types/exchange';
@@ -21,6 +30,8 @@ const StrategySelector = lazy(() => import('@/components/StrategySelector'));
 const TradingReports = lazy(() => import('@/components/TradingReports'));
 
 const Index = () => {
+  const { user, signOut } = useAuth();
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR', {
       style: 'decimal',
@@ -194,7 +205,35 @@ const Index = () => {
                     {toPersianNumbers(portfolio.positions.length)} پوزیشن
                   </div>
                 </div>
-                <AuthButton />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.full_name} />
+                        <AvatarFallback>
+                          {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <div className="flex items-center justify-start gap-2 p-2">
+                      <div className="flex flex-col space-y-1 leading-none">
+                        <p className="font-medium text-right">
+                          {user?.user_metadata?.full_name || 'کاربر'}
+                        </p>
+                        <p className="w-[200px] truncate text-sm text-muted-foreground text-right">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut} className="text-right">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      خروج
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
