@@ -2,11 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Portfolio } from '@/types/trading';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Activity, 
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Activity,
   Clock,
   BarChart3,
   Target,
@@ -63,9 +63,9 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
   const totalPnL = portfolio.positions.reduce((sum, p) => sum + p.unrealizedPnl, 0);
   const winningTrades = portfolio.trades.filter(t => {
     if (t.type === 'SELL') {
-      const buyTrade = portfolio.trades.find(bt => 
-        bt.symbol === t.symbol && 
-        bt.type === 'BUY' && 
+      const buyTrade = portfolio.trades.find(bt =>
+        bt.symbol === t.symbol &&
+        bt.type === 'BUY' &&
         bt.timestamp < t.timestamp
       );
       if (buyTrade) {
@@ -103,7 +103,7 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
             </CardTitle>
           </CardHeader>
           <CardContent className="text-right">
-            <div className="text-3xl font-bold persian-number text-blue-700 mb-2">{totalTrades}</div>
+            <div className="text-3xl font-bold   text-blue-700 mb-2">{totalTrades}</div>
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-1 text-green-600">
                 <TrendingUp className="w-3 h-3" />
@@ -130,7 +130,7 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
             </CardTitle>
           </CardHeader>
           <CardContent className="text-right">
-            <div className="text-3xl font-bold persian-number text-green-700 mb-2">
+            <div className="text-3xl font-bold   text-green-700 mb-2">
               {winRate.toFixed(1)}%
             </div>
             <div className="text-sm text-gray-600">
@@ -139,7 +139,7 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
             <div className="w-full bg-green-200 rounded-full h-2 mt-2">
               <div
                 className="bg-green-600 h-2 rounded-full transition-all duration-500"
-                style={{width: `${winRate}%`}}
+                style={{ width: `${winRate}%` }}
               ></div>
             </div>
           </CardContent>
@@ -158,22 +158,19 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
             </CardTitle>
           </CardHeader>
           <CardContent className="text-right">
-            <div className={`text-3xl font-bold persian-number mb-2 ${
-              totalPnL >= 0 ? 'text-green-700' : 'text-red-700'
-            }`}>
+            <div className={`text-3xl font-bold   mb-2 ${totalPnL >= 0 ? 'text-green-700' : 'text-red-700'
+              }`}>
               ${formatCurrency(totalPnL)}
             </div>
             <div className="text-sm text-gray-600">
               از پوزیشن‌های باز
             </div>
-            <div className={`w-full rounded-full h-2 mt-2 ${
-              totalPnL >= 0 ? 'bg-green-200' : 'bg-red-200'
-            }`}>
+            <div className={`w-full rounded-full h-2 mt-2 ${totalPnL >= 0 ? 'bg-green-200' : 'bg-red-200'
+              }`}>
               <div
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  totalPnL >= 0 ? 'bg-green-600' : 'bg-red-600'
-                }`}
-                style={{width: `${Math.min(Math.abs(totalPnL) / 1000 * 100, 100)}%`}}
+                className={`h-2 rounded-full transition-all duration-500 ${totalPnL >= 0 ? 'bg-green-600' : 'bg-red-600'
+                  }`}
+                style={{ width: `${Math.min(Math.abs(totalPnL) / 1000 * 100, 100)}%` }}
               ></div>
             </div>
           </CardContent>
@@ -192,22 +189,19 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
             </CardTitle>
           </CardHeader>
           <CardContent className="text-right">
-            <div className={`text-3xl font-bold persian-number mb-2 ${
-              portfolio.totalReturn >= 0 ? 'text-green-700' : 'text-red-700'
-            }`}>
+            <div className={`text-3xl font-bold   mb-2 ${portfolio.totalReturn >= 0 ? 'text-green-700' : 'text-red-700'
+              }`}>
               {formatPercent(portfolio.totalReturn)}
             </div>
             <div className="text-sm text-gray-600">
               ارزش: ${formatCurrency(portfolio.totalValue)}
             </div>
-            <div className={`w-full rounded-full h-2 mt-2 ${
-              portfolio.totalReturn >= 0 ? 'bg-green-200' : 'bg-red-200'
-            }`}>
+            <div className={`w-full rounded-full h-2 mt-2 ${portfolio.totalReturn >= 0 ? 'bg-green-200' : 'bg-red-200'
+              }`}>
               <div
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  portfolio.totalReturn >= 0 ? 'bg-green-600' : 'bg-red-600'
-                }`}
-                style={{width: `${Math.min(Math.abs(portfolio.totalReturn), 100)}%`}}
+                className={`h-2 rounded-full transition-all duration-500 ${portfolio.totalReturn >= 0 ? 'bg-green-600' : 'bg-red-600'
+                  }`}
+                style={{ width: `${Math.min(Math.abs(portfolio.totalReturn), 100)}%` }}
               ></div>
             </div>
           </CardContent>
@@ -231,7 +225,7 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl border border-red-200/50 hover:shadow-lg transition-all duration-300">
-                <div className="text-3xl font-bold text-red-700 persian-number mb-2">
+                <div className="text-3xl font-bold text-red-700   mb-2">
                   ${formatCurrency(riskMetrics.var95)}
                 </div>
                 <div className="text-sm font-medium text-red-600 mb-1">
@@ -241,45 +235,40 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
                   حداکثر زیان احتمالی
                 </div>
                 <div className="w-full bg-red-200 rounded-full h-1 mt-3">
-                  <div className="bg-red-600 h-1 rounded-full" style={{width: '100%'}}></div>
+                  <div className="bg-red-600 h-1 rounded-full" style={{ width: '100%' }}></div>
                 </div>
               </div>
 
-              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${
-                riskMetrics.sharpeRatio >= 1
+              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${riskMetrics.sharpeRatio >= 1
                   ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200/50'
                   : riskMetrics.sharpeRatio >= 0
-                  ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200/50'
-                  : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
-              }`}>
-                <div className={`text-3xl font-bold persian-number mb-2 ${
-                  riskMetrics.sharpeRatio >= 1 ? 'text-green-700' :
-                  riskMetrics.sharpeRatio >= 0 ? 'text-yellow-700' : 'text-red-700'
+                    ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200/50'
+                    : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
                 }`}>
+                <div className={`text-3xl font-bold   mb-2 ${riskMetrics.sharpeRatio >= 1 ? 'text-green-700' :
+                    riskMetrics.sharpeRatio >= 0 ? 'text-yellow-700' : 'text-red-700'
+                  }`}>
                   {riskMetrics.sharpeRatio.toFixed(2)}
                 </div>
-                <div className={`text-sm font-medium mb-1 ${
-                  riskMetrics.sharpeRatio >= 1 ? 'text-green-600' :
-                  riskMetrics.sharpeRatio >= 0 ? 'text-yellow-600' : 'text-red-600'
-                }`}>
+                <div className={`text-sm font-medium mb-1 ${riskMetrics.sharpeRatio >= 1 ? 'text-green-600' :
+                    riskMetrics.sharpeRatio >= 0 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>
                   نسبت شارپ
                 </div>
                 <div className="text-xs text-gray-600 persian-spacing">
                   بازدهی به ازای ریسک
                 </div>
-                <div className={`w-full rounded-full h-1 mt-3 ${
-                  riskMetrics.sharpeRatio >= 1 ? 'bg-green-200' :
-                  riskMetrics.sharpeRatio >= 0 ? 'bg-yellow-200' : 'bg-red-200'
-                }`}>
-                  <div className={`h-1 rounded-full ${
-                    riskMetrics.sharpeRatio >= 1 ? 'bg-green-600' :
-                    riskMetrics.sharpeRatio >= 0 ? 'bg-yellow-600' : 'bg-red-600'
-                  }`} style={{width: `${Math.min(Math.abs(riskMetrics.sharpeRatio) * 20, 100)}%`}}></div>
+                <div className={`w-full rounded-full h-1 mt-3 ${riskMetrics.sharpeRatio >= 1 ? 'bg-green-200' :
+                    riskMetrics.sharpeRatio >= 0 ? 'bg-yellow-200' : 'bg-red-200'
+                  }`}>
+                  <div className={`h-1 rounded-full ${riskMetrics.sharpeRatio >= 1 ? 'bg-green-600' :
+                      riskMetrics.sharpeRatio >= 0 ? 'bg-yellow-600' : 'bg-red-600'
+                    }`} style={{ width: `${Math.min(Math.abs(riskMetrics.sharpeRatio) * 20, 100)}%` }}></div>
                 </div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl border border-red-200/50 hover:shadow-lg transition-all duration-300">
-                <div className="text-3xl font-bold text-red-700 persian-number mb-2">
+                <div className="text-3xl font-bold text-red-700   mb-2">
                   {riskMetrics.maxDrawdown.toFixed(2)}%
                 </div>
                 <div className="text-sm font-medium text-red-600 mb-1">
@@ -289,67 +278,57 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
                   بزرگترین کاهش ارزش
                 </div>
                 <div className="w-full bg-red-200 rounded-full h-1 mt-3">
-                  <div className="bg-red-600 h-1 rounded-full" style={{width: `${riskMetrics.maxDrawdown}%`}}></div>
+                  <div className="bg-red-600 h-1 rounded-full" style={{ width: `${riskMetrics.maxDrawdown}%` }}></div>
                 </div>
               </div>
 
-              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${
-                riskMetrics.winRate >= 50
+              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${riskMetrics.winRate >= 50
                   ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200/50'
                   : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
-              }`}>
-                <div className={`text-3xl font-bold persian-number mb-2 ${
-                  riskMetrics.winRate >= 50 ? 'text-green-700' : 'text-red-700'
                 }`}>
+                <div className={`text-3xl font-bold   mb-2 ${riskMetrics.winRate >= 50 ? 'text-green-700' : 'text-red-700'
+                  }`}>
                   {riskMetrics.winRate.toFixed(1)}%
                 </div>
-                <div className={`text-sm font-medium mb-1 ${
-                  riskMetrics.winRate >= 50 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`text-sm font-medium mb-1 ${riskMetrics.winRate >= 50 ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   نرخ برد
                 </div>
                 <div className="text-xs text-gray-600 persian-spacing">
                   معاملات موفق
                 </div>
-                <div className={`w-full rounded-full h-1 mt-3 ${
-                  riskMetrics.winRate >= 50 ? 'bg-green-200' : 'bg-red-200'
-                }`}>
-                  <div className={`h-1 rounded-full ${
-                    riskMetrics.winRate >= 50 ? 'bg-green-600' : 'bg-red-600'
-                  }`} style={{width: `${riskMetrics.winRate}%`}}></div>
+                <div className={`w-full rounded-full h-1 mt-3 ${riskMetrics.winRate >= 50 ? 'bg-green-200' : 'bg-red-200'
+                  }`}>
+                  <div className={`h-1 rounded-full ${riskMetrics.winRate >= 50 ? 'bg-green-600' : 'bg-red-600'
+                    }`} style={{ width: `${riskMetrics.winRate}%` }}></div>
                 </div>
               </div>
 
-              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${
-                riskMetrics.profitFactor >= 1.5
+              <div className={`text-center p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 ${riskMetrics.profitFactor >= 1.5
                   ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200/50'
                   : riskMetrics.profitFactor >= 1
-                  ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200/50'
-                  : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
-              }`}>
-                <div className={`text-3xl font-bold persian-number mb-2 ${
-                  riskMetrics.profitFactor >= 1.5 ? 'text-green-700' :
-                  riskMetrics.profitFactor >= 1 ? 'text-yellow-700' : 'text-red-700'
+                    ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200/50'
+                    : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
                 }`}>
+                <div className={`text-3xl font-bold   mb-2 ${riskMetrics.profitFactor >= 1.5 ? 'text-green-700' :
+                    riskMetrics.profitFactor >= 1 ? 'text-yellow-700' : 'text-red-700'
+                  }`}>
                   {riskMetrics.profitFactor === Infinity ? '∞' : riskMetrics.profitFactor.toFixed(2)}
                 </div>
-                <div className={`text-sm font-medium mb-1 ${
-                  riskMetrics.profitFactor >= 1.5 ? 'text-green-600' :
-                  riskMetrics.profitFactor >= 1 ? 'text-yellow-600' : 'text-red-600'
-                }`}>
+                <div className={`text-sm font-medium mb-1 ${riskMetrics.profitFactor >= 1.5 ? 'text-green-600' :
+                    riskMetrics.profitFactor >= 1 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>
                   فاکتور سود
                 </div>
                 <div className="text-xs text-gray-600 persian-spacing">
                   سود به ازای زیان
                 </div>
-                <div className={`w-full rounded-full h-1 mt-3 ${
-                  riskMetrics.profitFactor >= 1.5 ? 'bg-green-200' :
-                  riskMetrics.profitFactor >= 1 ? 'bg-yellow-200' : 'bg-red-200'
-                }`}>
-                  <div className={`h-1 rounded-full ${
-                    riskMetrics.profitFactor >= 1.5 ? 'bg-green-600' :
-                    riskMetrics.profitFactor >= 1 ? 'bg-yellow-600' : 'bg-red-600'
-                  }`} style={{width: `${Math.min(riskMetrics.profitFactor * 20, 100)}%`}}></div>
+                <div className={`w-full rounded-full h-1 mt-3 ${riskMetrics.profitFactor >= 1.5 ? 'bg-green-200' :
+                    riskMetrics.profitFactor >= 1 ? 'bg-yellow-200' : 'bg-red-200'
+                  }`}>
+                  <div className={`h-1 rounded-full ${riskMetrics.profitFactor >= 1.5 ? 'bg-green-600' :
+                      riskMetrics.profitFactor >= 1 ? 'bg-yellow-600' : 'bg-red-600'
+                    }`} style={{ width: `${Math.min(riskMetrics.profitFactor * 20, 100)}%` }}></div>
                 </div>
               </div>
             </div>
@@ -423,11 +402,11 @@ const TradingReports = ({ portfolio, aiReports, riskMetrics }: TradingReportsPro
                           {formatDate(report.timestamp)}
                         </p>
                       </div>
-                      <Badge 
+                      <Badge
                         variant={
-                          report.decision === 'BUY' ? 'default' : 
-                          report.decision === 'SELL' ? 'destructive' : 
-                          'secondary'
+                          report.decision === 'BUY' ? 'default' :
+                            report.decision === 'SELL' ? 'destructive' :
+                              'secondary'
                         }
                       >
                         {report.decision === 'BUY' ? 'خرید' : report.decision === 'SELL' ? 'فروش' : 'نگهداری'}

@@ -176,7 +176,7 @@ const OrderBook = ({ orderBook, symbol, currentPrice }: OrderBookProps) => {
                     }`}>
                     {((orderBook.asks[0].price - orderBook.bids[0].price) / orderBook.bids[0].price * 100).toFixed(3)}%
                   </span>
-                  <span className="font-mono font-bold text-lg persian-number">
+                  <span className="font-mono font-bold text-lg  ">
                     ${formatPrice(orderBook.asks[0].price - orderBook.bids[0].price)}
                   </span>
                 </div>

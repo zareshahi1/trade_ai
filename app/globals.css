@@ -144,7 +144,7 @@
   }
 
   /* Persian Number Formatting */
-  .persian-number {
+  .persian-number{
     font-family: 'Vazirmatn', 'Noto Sans Arabic', 'IRANSans', monospace;
     font-variant-numeric: tabular-nums;
   }

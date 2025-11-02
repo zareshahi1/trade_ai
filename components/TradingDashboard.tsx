@@ -102,53 +102,48 @@ const TradingDashboard = ({
           <CardContent>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200/50">
-                <div className="text-lg sm:text-2xl font-bold text-blue-700 persian-number mb-1">
+                <div className="text-lg sm:text-2xl font-bold text-blue-700   mb-1">
                   ${formatCurrency(portfolio.totalValue)}
                 </div>
                 <p className="text-xs sm:text-sm text-blue-600 font-medium">ارزش کل</p>
                 <div className="w-full bg-blue-200 rounded-full h-1 mt-2">
-                  <div className="bg-blue-600 h-1 rounded-full" style={{width: '100%'}}></div>
+                  <div className="bg-blue-600 h-1 rounded-full" style={{ width: '100%' }}></div>
                 </div>
               </div>
               <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border border-green-200/50">
-                <div className="text-lg sm:text-2xl font-bold text-green-700 persian-number mb-1">
+                <div className="text-lg sm:text-2xl font-bold text-green-700   mb-1">
                   ${formatCurrency(portfolio.cash)}
                 </div>
                 <p className="text-xs sm:text-sm text-green-600 font-medium">موجودی نقد</p>
                 <div className="w-full bg-green-200 rounded-full h-1 mt-2">
-                  <div className="bg-green-600 h-1 rounded-full" style={{width: `${(portfolio.cash / portfolio.totalValue) * 100}%`}}></div>
+                  <div className="bg-green-600 h-1 rounded-full" style={{ width: `${(portfolio.cash / portfolio.totalValue) * 100}%` }}></div>
                 </div>
               </div>
-              <div className={`text-center p-3 sm:p-4 rounded-2xl border ${
-                portfolio.totalReturn >= 0
+              <div className={`text-center p-3 sm:p-4 rounded-2xl border ${portfolio.totalReturn >= 0
                   ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200/50'
                   : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200/50'
-              }`}>
-                <div className={`text-lg sm:text-2xl font-bold persian-number mb-1 ${
-                  portfolio.totalReturn >= 0 ? 'text-green-700' : 'text-red-700'
                 }`}>
+                <div className={`text-lg sm:text-2xl font-bold   mb-1 ${portfolio.totalReturn >= 0 ? 'text-green-700' : 'text-red-700'
+                  }`}>
                   {formatPercent(portfolio.totalReturn)}
                 </div>
-                <p className={`text-xs sm:text-sm font-medium ${
-                  portfolio.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <p className={`text-xs sm:text-sm font-medium ${portfolio.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   بازدهی کل
                 </p>
-                <div className={`w-full rounded-full h-1 mt-2 ${
-                  portfolio.totalReturn >= 0 ? 'bg-green-200' : 'bg-red-200'
-                }`}>
-                  <div className={`h-1 rounded-full ${
-                    portfolio.totalReturn >= 0 ? 'bg-green-600' : 'bg-red-600'
-                  }`} style={{width: `${Math.min(Math.abs(portfolio.totalReturn), 100)}%`}}></div>
+                <div className={`w-full rounded-full h-1 mt-2 ${portfolio.totalReturn >= 0 ? 'bg-green-200' : 'bg-red-200'
+                  }`}>
+                  <div className={`h-1 rounded-full ${portfolio.totalReturn >= 0 ? 'bg-green-600' : 'bg-red-600'
+                    }`} style={{ width: `${Math.min(Math.abs(portfolio.totalReturn), 100)}%` }}></div>
                 </div>
               </div>
               <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border border-purple-200/50">
-                <div className="text-lg sm:text-2xl font-bold text-purple-700 persian-number mb-1">
+                <div className="text-lg sm:text-2xl font-bold text-purple-700   mb-1">
                   {portfolio.positions.length}
                 </div>
                 <p className="text-xs sm:text-sm text-purple-600 font-medium">پوزیشن فعال</p>
                 <div className="flex justify-center gap-1 mt-2">
-                  {Array.from({length: Math.min(portfolio.positions.length, 3)}).map((_, i) => (
+                  {Array.from({ length: Math.min(portfolio.positions.length, 3) }).map((_, i) => (
                     <div key={i} className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-500 rounded-full"></div>
                   ))}
                   {portfolio.positions.length > 3 && (
@@ -250,11 +245,11 @@ const TradingDashboard = ({
                   <div key={index} className="p-3 bg-muted/50 rounded-lg space-y-2 text-right">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm">{decision.symbol}</span>
-                      <Badge 
+                      <Badge
                         variant={
-                          decision.action === 'BUY' ? 'default' : 
-                          decision.action === 'SELL' ? 'destructive' : 
-                          'secondary'
+                          decision.action === 'BUY' ? 'default' :
+                            decision.action === 'SELL' ? 'destructive' :
+                              'secondary'
                         }
                         className="text-xs"
                       >
@@ -270,7 +265,7 @@ const TradingDashboard = ({
               </div>
             </ScrollArea>
           </CardContent>
-         </Card>
+        </Card>
 
         {/* Order Book */}
         {selectedSymbol && (
@@ -289,8 +284,8 @@ const TradingDashboard = ({
               گزارش‌های تحلیل هوش مصنوعی
             </CardTitle>
           </CardHeader>
-           <CardContent className="p-4">
-             <ScrollArea className="h-[300px]">
+          <CardContent className="p-4">
+            <ScrollArea className="h-[300px]">
               <div className="space-y-3">
                 {aiReports.map((report, index) => (
                   <div key={index} className="p-3 bg-muted/50 rounded-lg space-y-2 text-right">

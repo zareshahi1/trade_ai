@@ -201,7 +201,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-4 lg:flex-col lg:gap-1 lg:items-end">
                 <div className="text-center lg:text-right">
-                  <div className="text-lg sm:text-xl font-bold text-gray-900 persian-number">
+                  <div className="text-lg sm:text-xl font-bold text-gray-900">
                     ${formatCurrency(portfolio.totalValue)}
                   </div>
                   <div className="text-xs text-gray-600">ارزش پرتفوی</div>
