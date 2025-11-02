@@ -1,4 +1,4 @@
-export type ExchangeType = 'binance' | 'bybit' | 'okx' | 'kucoin';
+export type ExchangeType = 'binance' | 'bybit' | 'okx' | 'kucoin' | 'wallex';
 export type TradingMode = 'demo' | 'live';
 
 export interface ExchangeCredentials {
@@ -11,6 +11,7 @@ export interface ExchangeConfig {
   type: ExchangeType;
   mode: TradingMode;
   credentials?: ExchangeCredentials;
+  wallexApiKey?: string;
 }
 
 export interface ExchangeBalance {

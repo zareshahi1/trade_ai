@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { ExchangeConfig, ExchangeType, TradingMode } from '@/types/exchange';
-import { Building2, AlertCircle, Shield, Zap, DollarSign } from 'lucide-react';
+import { Building2, AlertCircle, Shield, Zap, DollarSign, Key } from 'lucide-react';
 
 interface ExchangeConfigPanelProps {
   config: ExchangeConfig;
@@ -156,6 +156,32 @@ const ExchangeConfigPanel = ({ config, onChange, initialBalance, onBalanceChange
           </Alert>
         )}
 
+        {/* Wallex API Key for Price Data */}
+        <div className="space-y-2 p-4 bg-green-50 rounded-lg border-2 border-green-200">
+          <div className="flex items-center gap-2 mb-2">
+            <Key className="w-5 h-5 text-green-600" />
+            <Label className="text-right block text-base font-semibold">کلید API والکس (برای دریافت قیمت‌ها)</Label>
+          </div>
+          <Input
+            type="password"
+            placeholder="کلید API والکس خود را وارد کنید"
+            value={config.wallexApiKey || ''}
+            onChange={(e) => onChange({ ...config, wallexApiKey: e.target.value })}
+            className="text-right"
+          />
+          <p className="text-xs text-muted-foreground text-right">
+            کلید API را از پنل کاربری والکس دریافت کنید. این کلید برای دسترسی به داده‌های قیمت استفاده می‌شود.
+          </p>
+          {!config.wallexApiKey && (
+            <Alert className="mt-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-right">
+                بدون کلید API والکس، قیمت‌ها از طریق API عمومی دریافت می‌شوند که ممکن است محدود باشد.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+
         {/* Exchange Selection */}
         <div className="space-y-2">
           <Label className="text-right block">انتخاب صرافی</Label>
@@ -189,6 +215,12 @@ const ExchangeConfigPanel = ({ config, onChange, initialBalance, onBalanceChange
                 <div className="flex items-center gap-2">
                   <Building2 className="w-4 h-4" />
                   کوکوین (KuCoin)
+                </div>
+              </SelectItem>
+              <SelectItem value="wallex">
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
+                  والکس (Wallex)
                 </div>
               </SelectItem>
             </SelectContent>

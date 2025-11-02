@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCryptoPrices } from '@/hooks/useCryptoPrices';
 import { useTradingBot } from '@/hooks/useTradingBot';
 import CryptoCard from '@/components/CryptoCard';
@@ -17,7 +17,14 @@ import { TradingStrategy, DEFAULT_STRATEGIES } from '@/types/trading';
 import { ExchangeConfig } from '@/types/exchange';
 
 const Index = () => {
-  const { prices, priceHistory, isLoading, error } = useCryptoPrices();
+  const [exchangeConfig, setExchangeConfig] = useState<ExchangeConfig>(() => {
+    const saved = localStorage.getItem('trading-exchange-config');
+    return saved ? JSON.parse(saved) : {
+      type: 'wallex',
+      mode: 'demo',
+    };
+  });
+  const { prices, priceHistory, isLoading, error, isConnected, updateWallexApiKey } = useCryptoPrices();
   const [isBotEnabled, setIsBotEnabled] = useState(false);
   const [aiConfig, setAiConfig] = useState<AIConfig>({
     provider: 'openai',
@@ -25,10 +32,6 @@ const Index = () => {
     model: 'gpt-3.5-turbo'
   });
   const [strategy, setStrategy] = useState<TradingStrategy>(DEFAULT_STRATEGIES.moderate);
-  const [exchangeConfig, setExchangeConfig] = useState<ExchangeConfig>({
-    type: 'binance',
-    mode: 'demo',
-  });
   const [initialBalance, setInitialBalance] = useState<number>(() => {
     const saved = localStorage.getItem('trading-initial-cash');
     return saved ? Number(saved) : 10000;
@@ -47,6 +50,16 @@ const Index = () => {
     setInitialBalance(balance);
     localStorage.setItem('trading-initial-cash', balance.toString());
   };
+
+  // Update Wallex API key when exchange config changes
+  useEffect(() => {
+    updateWallexApiKey(exchangeConfig.wallexApiKey);
+  }, [exchangeConfig.wallexApiKey, updateWallexApiKey]);
+
+  // Save exchange config to localStorage
+  useEffect(() => {
+    localStorage.setItem('trading-exchange-config', JSON.stringify(exchangeConfig));
+  }, [exchangeConfig]);
 
   if (isLoading) {
     return (

@@ -22,12 +22,14 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
     }
   };
 
+  const isLoading = crypto.price === 0;
+
   return (
     <Card className="hover:shadow-lg transition-shadow" dir="rtl">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <span className="text-2xl font-bold">{crypto.symbol}</span>
-          {previousPrice && (
+          {previousPrice && !isLoading && (
             <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
               <span className="text-sm font-medium">
@@ -39,14 +41,16 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-2 text-right">
-          <div className="text-3xl font-bold">{formatPrice(crypto.price)}</div>
-          {previousPrice && (
+          <div className="text-3xl font-bold">
+            {isLoading ? 'در حال بارگذاری...' : formatPrice(crypto.price)}
+          </div>
+          {previousPrice && !isLoading && (
             <div className={`text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? '+' : ''}{formatPrice(Math.abs(priceChange))}
             </div>
           )}
           <div className="text-xs text-muted-foreground">
-            به‌روزرسانی: {new Date(crypto.timestamp).toLocaleTimeString('fa-IR')}
+            {isLoading ? 'اتصال به سرور...' : `به‌روزرسانی: ${new Date(crypto.timestamp).toLocaleTimeString('fa-IR')}`}
           </div>
         </div>
       </CardContent>
