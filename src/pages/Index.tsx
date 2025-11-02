@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Bot, Activity, Target, FileText, BarChart3, Brain, LogOut, User } from 'lucide-react';
+import { Loader2, Bot, Activity, Target, FileText, BarChart3, Brain, LogOut, User, Settings } from 'lucide-react';
 import { MadeWithDyad } from '@/components/made-with-dyad';
 import { AIConfig } from '@/services/aiService';
 import { TradingStrategy, DEFAULT_STRATEGIES } from '@/types/trading';
@@ -28,6 +28,7 @@ const AIConfigPanel = lazy(() => import('@/components/AIConfigPanel'));
 const ExchangeConfigPanel = lazy(() => import('@/components/ExchangeConfigPanel'));
 const StrategySelector = lazy(() => import('@/components/StrategySelector'));
 const TradingReports = lazy(() => import('@/components/TradingReports'));
+const TradingBotManager = lazy(() => import('@/components/TradingBotManager'));
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -288,15 +289,24 @@ const Index = () => {
                     <span>بازار</span>
                   </div>
                 </TabsTrigger>
-                <TabsTrigger
-                  value="config"
-                   className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
-                >
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>تنظیمات AI</span>
-                  </div>
-                </TabsTrigger>
+                 <TabsTrigger
+                   value="config"
+                    className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+                 >
+                   <div className="flex items-center gap-1 sm:gap-2">
+                     <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+                     <span>تنظیمات AI</span>
+                   </div>
+                 </TabsTrigger>
+                 <TabsTrigger
+                   value="bots"
+                    className="tab-trigger rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-200 text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0"
+                 >
+                   <div className="flex items-center gap-1 sm:gap-2">
+                     <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+                     <span>ربات‌ها</span>
+                   </div>
+                 </TabsTrigger>
               </TabsList>
             </div>
 
@@ -379,13 +389,19 @@ const Index = () => {
              </div>
            </TabsContent>
 
-           <TabsContent value="config">
-             <div className="max-w-2xl">
-               <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
-                 <AIConfigPanel config={aiConfig} onChange={setAiConfig} />
-               </Suspense>
-             </div>
-           </TabsContent>
+            <TabsContent value="config">
+              <div className="max-w-2xl">
+                <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+                  <AIConfigPanel config={aiConfig} onChange={setAiConfig} />
+                </Suspense>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="bots">
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+                <TradingBotManager />
+              </Suspense>
+            </TabsContent>
         </Tabs>
 
         <MadeWithDyad />
