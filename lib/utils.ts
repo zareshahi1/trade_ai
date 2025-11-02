@@ -40,9 +40,9 @@ export function toPersianNumbers(str: string | number): string {
   return String(str).replace(/[0-9]/g, (char) => persianNumbers[parseInt(char)]);
 }
 
-// Persian Currency Formatting
+// Currency Formatting
 export function formatPersianCurrency(amount: number, currency: string = 'تومان'): string {
-  const formatted = new Intl.NumberFormat('fa-IR', {
+  const formatted = new Intl.NumberFormat('en-US', {
     style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,

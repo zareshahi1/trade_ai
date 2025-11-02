@@ -36,7 +36,7 @@ export default function Home() {
   const { user, signOut } = useAuth();
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fa-IR', {
+    return new Intl.NumberFormat('en-US', {
       style: 'decimal',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
@@ -183,7 +183,7 @@ export default function Home() {
                       <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                       <span>آنلاین</span>
                     </div>
-                    <span>بروزرسانی: {toPersianNumbers(new Date().toLocaleTimeString('fa-IR'))}</span>
+                    <span>بروزرسانی: {new Date().toLocaleTimeString('en-US')}</span>
                   </div>
                 </div>
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
@@ -202,7 +202,7 @@ export default function Home() {
               <div className="flex items-center gap-4 lg:flex-col lg:gap-1 lg:items-end">
                 <div className="text-center lg:text-right">
                   <div className="text-lg sm:text-xl font-bold text-gray-900 persian-number">
-                    ${toPersianNumbers(formatCurrency(portfolio.totalValue))}
+                    ${formatCurrency(portfolio.totalValue)}
                   </div>
                   <div className="text-xs text-gray-600">ارزش پرتفوی</div>
                 </div>
@@ -212,10 +212,10 @@ export default function Home() {
                       ? 'persian-badge-success'
                       : 'persian-badge-danger'
                   }`}>
-                    {portfolio.totalReturn >= 0 ? '+' : ''}{toPersianNumbers(portfolio.totalReturn.toFixed(0))}%
+                    {portfolio.totalReturn >= 0 ? '+' : ''}{portfolio.totalReturn.toFixed(0)}%
                   </div>
                   <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                    {toPersianNumbers(portfolio.positions.length)} پوزیشن
+                    {portfolio.positions.length} پوزیشن
                   </div>
                 </div>
                 <DropdownMenu>
