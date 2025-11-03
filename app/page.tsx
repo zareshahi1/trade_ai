@@ -49,7 +49,7 @@ export default function Home() {
     type: 'wallex',
     mode: 'demo',
   });
-  const { prices, priceHistory, isLoading, error, isConnected, updateWallexApiKey } = useCryptoPrices(!!user);
+  const { prices, priceHistory, isLoading, error, isConnected } = useCryptoPrices(!!user);
   const [isBotEnabled, setIsBotEnabled] = useState(false);
   const [aiConfig, setAiConfig] = useState<AIConfig>({
     provider: 'openai',
