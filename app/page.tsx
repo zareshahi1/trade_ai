@@ -93,6 +93,11 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
+  const handleBalanceChange = (newBalance: number) => {
+    setInitialBalance(newBalance);
+    localStorage.setItem('trading-initial-cash', newBalance.toString());
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
