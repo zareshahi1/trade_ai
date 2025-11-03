@@ -35,7 +35,7 @@ export async function GET() {
       headers['x-api-key'] = wallexApiKey;
     }
 
-    const response = await fetch(`${WALLEX_API_BASE}/hector/web/v1/markets`, {
+    const response = await fetch(`${WALLEX_API_BASE}/hector/web/v1/markets?t=${Date.now()}`, {
       headers,
     });
 
