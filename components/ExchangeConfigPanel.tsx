@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { useAuth } from '@/hooks/useAuth';
 import { UserApiKeys } from '@/services/supabaseStore';
-import { ExchangeConfig, ExchangeType, TradingMode } from '@/types/exchange';
+import { ExchangeConfig, ExchangeCredentials, ExchangeType, TradingMode } from '@/types/exchange';
 import { Building2, AlertCircle, Shield, Zap, DollarSign, Key } from 'lucide-react';
 
 interface ExchangeConfigPanelProps {
