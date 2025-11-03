@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { useAuth } from '@/hooks/useAuth';
-import { UserApiKeys } from '@/services/vercelStore';
+import { UserApiKeys } from '@/services/supabaseStore';
 import { ExchangeConfig, ExchangeType, TradingMode } from '@/types/exchange';
 import { Building2, AlertCircle, Shield, Zap, DollarSign, Key } from 'lucide-react';
 
@@ -24,7 +24,11 @@ const ExchangeConfigPanel = ({ config, onChange, initialBalance, onBalanceChange
   const hasCredentials = config.credentials?.apiKey && config.credentials?.apiSecret;
 
   const updateCredentials = async (updates: Partial<ExchangeConfig['credentials']>) => {
-    const newCredentials = { ...config.credentials, ...updates };
+    const currentCredentials = config.credentials || { apiKey: '', apiSecret: '' };
+    const filteredUpdates = Object.fromEntries(
+      Object.entries(updates || {}).filter(([_, value]) => value !== undefined)
+    );
+    const newCredentials = { ...currentCredentials, ...filteredUpdates } as ExchangeCredentials;
     const newConfig = { ...config, credentials: newCredentials };
     onChange(newConfig);
 
