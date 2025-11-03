@@ -16,7 +16,7 @@ export class ExchangeService {
     }
 
     // Check if we're in development (using Vite proxy) or production
-    const isDevelopment = import.meta.env.DEV;
+    const isDevelopment = process.env.NODE_ENV === 'development';
 
     switch (this.config.type) {
       case 'binance':

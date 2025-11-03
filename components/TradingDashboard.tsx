@@ -270,7 +270,7 @@ const TradingDashboard = ({
         {/* Order Book */}
         {selectedSymbol && (
           <OrderBook
-            orderBook={orderBook}
+            orderBook={orderBook ?? null}
             symbol={selectedSymbol}
             currentPrice={prices?.prices[selectedSymbol]?.price}
           />
