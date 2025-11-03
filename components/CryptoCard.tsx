@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { CryptoPrice } from '@/types/crypto';
+import { toPersianNumbers } from '@/lib/utils';
 
 interface CryptoCardProps {
   crypto: CryptoPrice;
@@ -12,13 +13,22 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
   const priceChangePercent = previousPrice ? ((priceChange / previousPrice) * 100) : 0;
   const isPositive = priceChange >= 0;
 
+  const isTMN = crypto.symbol.endsWith('TMN');
+
   const formatPrice = (price: number) => {
+    let formatted: string;
     if (price < 1) {
-      return `$${price.toFixed(6)}`;
+      formatted = price.toFixed(6);
     } else if (price < 100) {
-      return `$${price.toFixed(2)}`;
+      formatted = price.toFixed(2);
     } else {
-      return `$${price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+      formatted = price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    if (isTMN) {
+      return toPersianNumbers(formatted) + ' تومان';
+    } else {
+      return '$' + toPersianNumbers(formatted);
     }
   };
 
@@ -48,9 +58,9 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
                 : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
               }`}>
               {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-              <span className="text-sm font-bold  ">
-                {isPositive ? '+' : ''}{priceChangePercent.toFixed(2)}%
-              </span>
+               <span className="text-sm font-bold  ">
+                 {isPositive ? '+' : ''}{toPersianNumbers(priceChangePercent.toFixed(2))}%
+               </span>
             </div>
           )}
         </CardTitle>
@@ -80,10 +90,10 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
             <div className="text-center">
               <div className="text-sm text-gray-600 mb-1">۲۴ ساعت</div>
-              <div className={`text-sm font-bold   ${isPositive ? 'text-green-600' : 'text-red-600'
-                }`}>
-                {isPositive ? '+' : ''}{priceChangePercent.toFixed(2)}%
-              </div>
+               <div className={`text-sm font-bold   ${isPositive ? 'text-green-600' : 'text-red-600'
+                 }`}>
+                 {isPositive ? '+' : ''}{toPersianNumbers(priceChangePercent.toFixed(2))}%
+               </div>
             </div>
             <div className="text-center">
               <div className="text-sm text-gray-600 mb-1">وضعیت</div>
