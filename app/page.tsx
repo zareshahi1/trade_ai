@@ -61,9 +61,21 @@ export default function Home() {
   const [initialBalance, setInitialBalance] = useState<number>(10000);
   const [orderBook, setOrderBook] = useState<OrderBook | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>('BTCUSDT');
+  // Filter prices to only USDT symbols for trading bot
+  const usdtPrices = prices ? {
+    prices: Object.fromEntries(
+      Object.entries(prices.prices).filter(([symbol]) => !symbol.endsWith('TMN'))
+    ),
+    serverTime: prices.serverTime
+  } : null;
+
+  const usdtPriceHistory = Object.fromEntries(
+    Object.entries(priceHistory).filter(([symbol]) => !symbol.endsWith('TMN'))
+  );
+
   const { portfolio, decisions, aiReports, isAnalyzing, resetPortfolio, getRiskMetrics } = useTradingBot(
-    prices,
-    priceHistory,
+    usdtPrices,
+    usdtPriceHistory,
     isBotEnabled,
     aiConfig,
     strategy,
