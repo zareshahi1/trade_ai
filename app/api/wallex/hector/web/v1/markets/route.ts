@@ -26,7 +26,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (err) {
+      console.error('Invalid JSON response from Wallex API:', err);
+      return NextResponse.json(
+        { error: 'Invalid JSON response from Wallex API' },
+        { status: 502 }
+      );
+    }
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error proxying to Wallex API:', error);

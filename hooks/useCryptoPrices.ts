@@ -46,7 +46,12 @@ export const useCryptoPrices = () => {
         throw new Error(`HTTP fetch failed: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (err) {
+        throw new Error('Invalid JSON response from Wallex API');
+      }
       console.log('HTTP response:', data);
 
       // Parse Wallex HTTP API response
