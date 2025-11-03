@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { CryptoPricesResponse, CryptoPrice, PriceHistory } from '@/types/crypto';
 
+const WS_URL = 'wss://api.wallex.ir/ws';
 const MAX_HISTORY_POINTS = 100;
-const POLL_INTERVAL = 5000; // 5 seconds
+const RECONNECT_INTERVAL = 5000; // 5 seconds
 const SYMBOLS = ['BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT', 'XRP', 'LTC', 'DOGE', 'AVAX', 'MATIC', 'LINK', 'UNI', 'ALGO', 'VET'];
 
 export const useCryptoPrices = (isAuthenticated: boolean = true) => {
@@ -10,53 +11,109 @@ export const useCryptoPrices = (isAuthenticated: boolean = true) => {
   const [priceHistory, setPriceHistory] = useState<Record<string, PriceHistory[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
-  const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchPrices = useCallback(async () => {
-    if (!isAuthenticated) return;
+  const connectWebSocket = useCallback(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN || !isAuthenticated) return;
 
     try {
-      const response = await fetch('/api/crypto-prices');
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
+      const ws = new WebSocket(WS_URL);
+      wsRef.current = ws;
 
-      const data = await response.json();
+      ws.onopen = () => {
+        setIsConnected(true);
+        setError(null);
+        setIsLoading(false);
 
-      if (data.error) {
-        throw new Error(data.error);
-      }
+        // Send subscribe message
+        ws.send(JSON.stringify(["subscribe", { "channel": "all@price" }]));
+      };
 
-      setPrices(data);
-      setError(null);
-      setIsLoading(false);
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
 
-      // Update price history
-      if (data.prices) {
-        setPriceHistory((prev) => {
-          const updated = { ...prev };
-          data.prices.forEach((priceData: CryptoPrice) => {
-            const symbol = priceData.symbol;
-            if (!updated[symbol]) {
-              updated[symbol] = [];
+          if (Array.isArray(message) && message.length >= 2) {
+            const [channel, data] = message;
+
+            if (channel === "all@price" && data.symbol && data.price) {
+              const symbol = data.symbol.replace('USDT', '');
+
+              if (SYMBOLS.includes(symbol)) {
+                setPrices((prevPrices) => {
+                  const currentPrices = prevPrices?.prices || {};
+                  const newPrices = { ...currentPrices };
+
+                  newPrices[symbol] = {
+                    symbol,
+                    price: parseFloat(data.price),
+                    timestamp: Date.now(),
+                  };
+
+                  return {
+                    prices: newPrices,
+                    serverTime: Date.now(),
+                  };
+                });
+
+                // Update price history
+                setPriceHistory((prev) => {
+                  const updated = { ...prev };
+
+                  if (!updated[symbol]) {
+                    updated[symbol] = [];
+                  }
+
+                  updated[symbol] = [
+                    ...updated[symbol],
+                    {
+                      timestamp: Date.now(),
+                      price: parseFloat(data.price),
+                    },
+                  ].slice(-MAX_HISTORY_POINTS);
+
+                  return updated;
+                });
+              }
             }
-            updated[symbol] = [
-              ...updated[symbol],
-              {
-                timestamp: priceData.timestamp,
-                price: priceData.price,
-              },
-            ].slice(-MAX_HISTORY_POINTS);
-          });
-          return updated;
-        });
-      }
+          }
+        } catch (err) {
+          // Silent
+        }
+      };
+
+      ws.onclose = (event) => {
+        setIsConnected(false);
+        // Attempt to reconnect
+        reconnectTimeoutRef.current = setTimeout(() => {
+          connectWebSocket();
+        }, RECONNECT_INTERVAL);
+      };
+
+      ws.onerror = (error) => {
+        setError('WebSocket connection error');
+        setIsLoading(false);
+      };
+
     } catch (err) {
-      setError('Failed to fetch prices');
+      setError('Failed to connect to WebSocket');
       setIsLoading(false);
     }
   }, [isAuthenticated]);
+
+  const disconnectWebSocket = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+  }, []);
 
   // Initialize with empty prices
   useEffect(() => {
@@ -75,25 +132,18 @@ export const useCryptoPrices = (isAuthenticated: boolean = true) => {
     });
   }, []);
 
-  // Polling effect
+  // WebSocket connection management
   useEffect(() => {
     if (isAuthenticated) {
-      fetchPrices();
-      pollTimeoutRef.current = setInterval(fetchPrices, POLL_INTERVAL);
+      connectWebSocket();
     } else {
-      if (pollTimeoutRef.current) {
-        clearInterval(pollTimeoutRef.current);
-        pollTimeoutRef.current = null;
-      }
+      disconnectWebSocket();
     }
 
     return () => {
-      if (pollTimeoutRef.current) {
-        clearInterval(pollTimeoutRef.current);
-        pollTimeoutRef.current = null;
-      }
+      disconnectWebSocket();
     };
-  }, [fetchPrices, isAuthenticated]);
+  }, [connectWebSocket, disconnectWebSocket, isAuthenticated]);
 
-  return { prices, priceHistory, isLoading, error, isConnected: true };
+  return { prices, priceHistory, isLoading, error, isConnected };
 };
