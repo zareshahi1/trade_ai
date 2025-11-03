@@ -28,7 +28,7 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
     if (isTMN) {
       return toPersianNumbers(formatted) + ' تومان';
     } else {
-      return '$' + toPersianNumbers(formatted);
+      return '$' + formatted;
     }
   };
 
@@ -59,7 +59,7 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
               }`}>
               {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                <span className="text-sm font-bold  ">
-                 {isPositive ? '+' : ''}{toPersianNumbers(priceChangePercent.toFixed(2))}%
+                 {isPositive ? '+' : ''}{isTMN ? toPersianNumbers(priceChangePercent.toFixed(2)) : priceChangePercent.toFixed(2)}%
                </span>
             </div>
           )}
@@ -92,7 +92,7 @@ const CryptoCard = ({ crypto, previousPrice }: CryptoCardProps) => {
               <div className="text-sm text-gray-600 mb-1">۲۴ ساعت</div>
                <div className={`text-sm font-bold   ${isPositive ? 'text-green-600' : 'text-red-600'
                  }`}>
-                 {isPositive ? '+' : ''}{toPersianNumbers(priceChangePercent.toFixed(2))}%
+                 {isPositive ? '+' : ''}{isTMN ? toPersianNumbers(priceChangePercent.toFixed(2)) : priceChangePercent.toFixed(2)}%
                </div>
             </div>
             <div className="text-center">
