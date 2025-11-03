@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCryptoPrices } from '@/hooks/useCryptoPrices';
 import { useTradingBot } from '@/hooks/useTradingBot';
 import { useAuth } from '@/hooks/useAuth';
+import { supabaseStore } from '@/services/supabaseStore';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -69,22 +70,24 @@ export default function Home() {
     initialBalance
   );
 
-  // Load initial data from localStorage after mount
+  // Load initial data from DB
   useEffect(() => {
-    const savedExchangeConfig = localStorage.getItem('trading-exchange-config');
-    if (savedExchangeConfig) {
-      try {
-        setExchangeConfig(JSON.parse(savedExchangeConfig));
-      } catch (error) {
-        console.error('Error parsing saved exchange config:', error);
-      }
-    }
+    const loadConfig = async () => {
+      if (user) {
+        const savedExchangeConfig = await supabaseStore.getUserConfig(user.id, 'exchange_config');
+        if (savedExchangeConfig) {
+          setExchangeConfig(savedExchangeConfig);
+        }
 
-    const savedInitialCash = localStorage.getItem('trading-initial-cash');
-    if (savedInitialCash) {
-      setInitialBalance(Number(savedInitialCash));
-    }
-  }, []);
+        const savedInitialBalance = await supabaseStore.getUserConfig(user.id, 'initial_balance');
+        if (savedInitialBalance) {
+          setInitialBalance(savedInitialBalance);
+        }
+      }
+    };
+
+    loadConfig();
+  }, [user]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -95,8 +98,20 @@ export default function Home() {
 
   const handleBalanceChange = (newBalance: number) => {
     setInitialBalance(newBalance);
-    localStorage.setItem('trading-initial-cash', newBalance.toString());
   };
+
+  // Save configs to DB
+  useEffect(() => {
+    if (user && exchangeConfig) {
+      supabaseStore.saveUserConfig(user.id, 'exchange_config', exchangeConfig);
+    }
+  }, [exchangeConfig, user]);
+
+  useEffect(() => {
+    if (user && initialBalance !== undefined) {
+      supabaseStore.saveUserConfig(user.id, 'initial_balance', initialBalance);
+    }
+  }, [initialBalance, user]);
 
   if (isLoading) {
     return (

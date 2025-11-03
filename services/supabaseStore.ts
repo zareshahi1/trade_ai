@@ -209,6 +209,41 @@ export class SupabaseStoreService {
       return false
     }
   }
+
+  async saveUserConfig(userId: string, key: string, value: any): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('user_configs')
+        .upsert({
+          user_id: userId,
+          key,
+          value: JSON.stringify(value)
+        })
+
+      return !error
+    } catch (error) {
+      console.error('Error saving user config:', error)
+      return false
+    }
+  }
+
+  async getUserConfig(userId: string, key: string): Promise<any | null> {
+    try {
+      const { data, error } = await supabase
+        .from('user_configs')
+        .select('value')
+        .eq('user_id', userId)
+        .eq('key', key)
+        .single()
+
+      if (error || !data) return null
+
+      return JSON.parse(data.value)
+    } catch (error) {
+      console.error('Error getting user config:', error)
+      return null
+    }
+  }
 }
 
 export const supabaseStore = new SupabaseStoreService()

@@ -42,42 +42,40 @@ export const useCryptoPrices = (isAuthenticated: boolean = true) => {
             if (channel === "all@price" && data.symbol && data.price) {
               const symbol = data.symbol.replace('USDT', '');
 
-              if (SYMBOLS.includes(symbol)) {
-                setPrices((prevPrices) => {
-                  const currentPrices = prevPrices?.prices || {};
-                  const newPrices = { ...currentPrices };
+              setPrices((prevPrices) => {
+                const currentPrices = prevPrices?.prices || {};
+                const newPrices = { ...currentPrices };
 
-                  newPrices[symbol] = {
-                    symbol,
-                    price: parseFloat(data.price),
+                newPrices[symbol] = {
+                  symbol,
+                  price: parseFloat(data.price),
+                  timestamp: Date.now(),
+                };
+
+                return {
+                  prices: newPrices,
+                  serverTime: Date.now(),
+                };
+              });
+
+              // Update price history
+              setPriceHistory((prev) => {
+                const updated = { ...prev };
+
+                if (!updated[symbol]) {
+                  updated[symbol] = [];
+                }
+
+                updated[symbol] = [
+                  ...updated[symbol],
+                  {
                     timestamp: Date.now(),
-                  };
+                    price: parseFloat(data.price),
+                  },
+                ].slice(-MAX_HISTORY_POINTS);
 
-                  return {
-                    prices: newPrices,
-                    serverTime: Date.now(),
-                  };
-                });
-
-                // Update price history
-                setPriceHistory((prev) => {
-                  const updated = { ...prev };
-
-                  if (!updated[symbol]) {
-                    updated[symbol] = [];
-                  }
-
-                  updated[symbol] = [
-                    ...updated[symbol],
-                    {
-                      timestamp: Date.now(),
-                      price: parseFloat(data.price),
-                    },
-                  ].slice(-MAX_HISTORY_POINTS);
-
-                  return updated;
-                });
-              }
+                return updated;
+              });
             }
           }
         } catch (err) {
