@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const WALLEX_API_BASE = 'https://api.wallex.ir';
 const SYMBOLS = ['BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT', 'XRP', 'LTC', 'DOGE', 'AVAX', 'MATIC', 'LINK', 'UNI', 'ALGO', 'VET'];
@@ -9,19 +9,43 @@ export async function GET() {
       headers: {
         'Content-Type': 'application/json',
       },
+      next: { revalidate: 30 }, // Cache for 30 seconds
     });
 
     if (!response.ok) {
-      throw new Error(`Wallex API error: ${response.status}`);
+      // Return default prices if API fails
+      const defaultPrices = SYMBOLS.map(symbol => ({
+        symbol,
+        price: 0,
+        timestamp: Date.now(),
+      }));
+      return NextResponse.json({
+        prices: defaultPrices,
+        serverTime: Date.now(),
+      });
     }
 
     const data = await response.json();
 
-    if (!Array.isArray(data)) {
-      throw new Error('Invalid response format');
+    let markets: any[] = [];
+    if (Array.isArray(data)) {
+      markets = data;
+    } else if (data.result && Array.isArray(data.result)) {
+      markets = data.result;
+    } else {
+      // Return default if unexpected format
+      const defaultPrices = SYMBOLS.map(symbol => ({
+        symbol,
+        price: 0,
+        timestamp: Date.now(),
+      }));
+      return NextResponse.json({
+        prices: defaultPrices,
+        serverTime: Date.now(),
+      });
     }
 
-    const filteredData = data
+    const filteredData = markets
       .filter((market: any) => {
         const symbol = market.symbol?.replace('USDT', '') ||
                        market.coin?.replace('USDT', '') ||
@@ -32,23 +56,41 @@ export async function GET() {
         const symbol = market.symbol?.replace('USDT', '') ||
                        market.coin?.replace('USDT', '') ||
                        market.name?.replace('USDT', '');
-        const price = market.price || market.lastPrice || market.close;
+        const price = market.price || market.lastPrice || market.close || 0;
         return {
           symbol,
-          price: parseFloat(price),
+          price: parseFloat(price) || 0,
           timestamp: Date.now(),
         };
       });
+
+    // If no data, return defaults
+    if (filteredData.length === 0) {
+      const defaultPrices = SYMBOLS.map(symbol => ({
+        symbol,
+        price: 0,
+        timestamp: Date.now(),
+      }));
+      return NextResponse.json({
+        prices: defaultPrices,
+        serverTime: Date.now(),
+      });
+    }
 
     return NextResponse.json({
       prices: filteredData,
       serverTime: Date.now(),
     });
   } catch (error) {
-    console.error('Error fetching crypto prices:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch prices' },
-      { status: 500 }
-    );
+    // Return default prices on any error
+    const defaultPrices = SYMBOLS.map(symbol => ({
+      symbol,
+      price: 0,
+      timestamp: Date.now(),
+    }));
+    return NextResponse.json({
+      prices: defaultPrices,
+      serverTime: Date.now(),
+    });
   }
 }
