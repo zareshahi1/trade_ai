@@ -95,6 +95,11 @@ export default function Home() {
         if (savedInitialBalance) {
           setInitialBalance(savedInitialBalance);
         }
+
+        const savedAiConfig = await supabaseStore.getUserConfig(user.id, 'ai_config');
+        if (savedAiConfig) {
+          setAiConfig(savedAiConfig);
+        }
       }
     };
 
@@ -124,6 +129,12 @@ export default function Home() {
       supabaseStore.saveUserConfig(user.id, 'initial_balance', initialBalance);
     }
   }, [initialBalance, user]);
+
+  useEffect(() => {
+    if (user && aiConfig) {
+      supabaseStore.saveUserConfig(user.id, 'ai_config', aiConfig);
+    }
+  }, [aiConfig, user]);
 
   if (isLoading) {
     return (
