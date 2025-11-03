@@ -5,7 +5,7 @@ const SYMBOLS = ['BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT', 'XRP', 'LTC', 'DOGE',
 
 export async function GET() {
   try {
-    const response = await fetch(`${WALLEX_API_BASE}/v1/markets`, {
+    const response = await fetch(`${WALLEX_API_BASE}/hector/web/v1/markets`, {
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'Mozilla/5.0 (compatible; TradeAI/1.0)',
@@ -28,12 +28,7 @@ export async function GET() {
 
     const data = await response.json();
 
-    let markets: any[] = [];
-    if (Array.isArray(data)) {
-      markets = data;
-    } else if (data.result && Array.isArray(data.result)) {
-      markets = data.result;
-    } else {
+    if (!data.success || !data.result || !data.result.markets) {
       // Return default if unexpected format
       const defaultPrices = SYMBOLS.map(symbol => ({
         symbol,
@@ -45,6 +40,8 @@ export async function GET() {
         serverTime: Date.now(),
       });
     }
+
+    const markets = data.result.markets;
 
     const filteredData = markets
       .filter((market: any) => {
