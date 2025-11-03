@@ -12,7 +12,7 @@ const RECONNECT_INTERVAL = 5000; // 5 seconds
 const HTTP_POLL_INTERVAL = 300000; // 5 minutes for occasional sync (was 10 seconds)
 const SYMBOLS = ['BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT'];
 
-export const useCryptoPrices = () => {
+export const useCryptoPrices = (isAuthenticated: boolean = true) => {
   const [prices, setPrices] = useState<CryptoPricesResponse | null>(null);
   const [priceHistory, setPriceHistory] = useState<Record<string, PriceHistory[]>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -309,6 +309,13 @@ export const useCryptoPrices = () => {
   const updateWallexApiKey = useCallback((apiKey: string | undefined) => {
     wallexApiKeyRef.current = apiKey;
   }, []);
+
+  // Disconnect WebSocket when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      disconnectWebSocket();
+    }
+  }, [isAuthenticated, disconnectWebSocket]);
 
   return { prices, priceHistory, isLoading, error, isConnected, updateWallexApiKey };
 };

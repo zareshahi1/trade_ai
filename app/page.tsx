@@ -49,7 +49,7 @@ export default function Home() {
     type: 'wallex',
     mode: 'demo',
   });
-  const { prices, priceHistory, isLoading, error, isConnected, updateWallexApiKey } = useCryptoPrices();
+  const { prices, priceHistory, isLoading, error, isConnected, updateWallexApiKey } = useCryptoPrices(!!user);
   const [isBotEnabled, setIsBotEnabled] = useState(false);
   const [aiConfig, setAiConfig] = useState<AIConfig>({
     provider: 'openai',
@@ -195,7 +195,7 @@ export default function Home() {
                       </div>
                     </div>
                     <DropdownMenuSeparator />
-                     <DropdownMenuItem onClick={() => { signOut(); router.push('/login'); }} className="text-right">
+                     <DropdownMenuItem onClick={signOut} className="text-right">
                       <LogOut className="w-4 h-4 mr-2" />
                       خروج
                     </DropdownMenuItem>
