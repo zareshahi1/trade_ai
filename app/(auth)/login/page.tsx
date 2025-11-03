@@ -1,14 +1,26 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase-server'
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import LoginForm from './LoginForm'
 
-export default async function LoginPage() {
-  const supabase = await createClient()
+export default function LoginPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
 
-  const { data: { session } } = await supabase.auth.getSession()
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
 
-  if (session) {
-    redirect('/')
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
   }
 
   return <LoginForm />
