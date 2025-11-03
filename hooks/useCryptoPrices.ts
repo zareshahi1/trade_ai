@@ -28,8 +28,10 @@ export const useCryptoPrices = (isAuthenticated: boolean = true) => {
         setError(null);
         setIsLoading(false);
 
-        // Send subscribe message
-        ws.send(JSON.stringify(["subscribe", { "channel": "all@price" }]));
+        // Send subscribe messages for each symbol
+        SYMBOLS.forEach(symbol => {
+          ws.send(JSON.stringify(["subscribe", { "channel": `${symbol}USDT@price` }]));
+        });
       };
 
       ws.onmessage = (event) => {
