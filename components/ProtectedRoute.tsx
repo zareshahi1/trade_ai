@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth'
-import { Navigate } from 'react-router-dom'
-import { ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import { ReactNode, useEffect } from 'react'
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -8,8 +8,16 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth()
+  const router = useRouter()
 
   console.log('🔐 ProtectedRoute:', { loading, hasUser: !!user, userEmail: user?.email })
+
+  useEffect(() => {
+    if (!loading && !user) {
+      console.log('🚪 No user found, redirecting to login...')
+      router.push('/login')
+    }
+  }, [user, loading, router])
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -24,10 +32,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     )
   }
 
-  // Redirect to login if not authenticated
+  // Don't render anything if not authenticated (redirect will happen)
   if (!user) {
-    console.log('🚪 No user found, redirecting to login...')
-    return <Navigate to="/login" replace />
+    return null
   }
 
   console.log('✅ User authenticated, rendering protected content')
