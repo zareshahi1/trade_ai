@@ -184,9 +184,9 @@ yarn preview
    - روی "Import" کلیک کنید
 
 3. **تنظیمات Deploy**
-   - Framework Preset: Vite
+   - Framework Preset: Next.js
    - Build Command: `npm run build`
-   - Output Directory: `dist`
+   - Output Directory: `.next`
    - Install Command: `npm install`
 
 4. **Deploy**
@@ -670,7 +670,7 @@ crypto-trading-bot/
 ├── .gitignore                   # فایل‌های نادیده گرفته شده
 ├── package.json                 # وابستگی‌ها
 ├── tsconfig.json               # تنظیمات TypeScript
-├── vite.config.ts              # تنظیمات Vite
+├── next.config.js              # تنظیمات Next.js
 ├── tailwind.config.ts          # تنظیمات Tailwind
 └── README.md                    # این فایل
 ```
@@ -883,7 +883,7 @@ curl http://localhost:11434/api/tags
 npm run dev
 
 # اگر مشکل ادامه داشت، پروکسی را بررسی کنید
-# در vite.config.ts
+# در next.config.js
 ```
 
 ### لاگ‌ها و دیباگ
@@ -1116,7 +1116,7 @@ SOFTWARE.
 
 - [React](https://react.dev/) - کتابخانه UI
 - [TypeScript](https://www.typescriptlang.org/) - زبان برنامه‌نویسی
-- [Vite](https://vitejs.dev/) - Build Tool
+- [Next.js](https://nextjs.org/) - React Framework
 - [Tailwind CSS](https://tailwindcss.com/) - فریمورک CSS
 - [shadcn/ui](https://ui.shadcn.com/) - کامپوننت‌های UI
 - [Recharts](https://recharts.org/) - کتابخانه نمودار
