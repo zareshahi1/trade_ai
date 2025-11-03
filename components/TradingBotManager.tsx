@@ -321,7 +321,12 @@ const TradingBotManager = () => {
             <p className="text-gray-600 text-center mb-4">
               ربات‌های معاملاتی شما به صورت خودکار و ۲۴ ساعته بازار را تحلیل کرده و معاملات را انجام می‌دهند
             </p>
-            <Button onClick={() => document.querySelector('[data-state="open"]')?.click()}>
+            <Button onClick={() => {
+              const element = document.querySelector('[data-state="open"]');
+              if (element instanceof HTMLElement) {
+                element.click();
+              }
+            }}>
               <Plus className="w-4 h-4 mr-2" />
               ایجاد اولین ربات
             </Button>
