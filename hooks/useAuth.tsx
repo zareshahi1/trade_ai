@@ -145,15 +145,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   const signOut = async () => {
-    setLoading(true)
     const { error } = await auth.signOut()
     if (error) {
       console.error('Error signing out:', error)
     }
-    setUser(null)
-    setSession(null)
-    setApiKeys(null)
-    setLoading(false)
+    // Auth state change will handle setting user/session to null
   }
 
   const updateApiKeys = async (keys: UserApiKeys): Promise<boolean> => {

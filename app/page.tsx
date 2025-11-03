@@ -195,7 +195,7 @@ export default function Home() {
                       </div>
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={async () => { await signOut(); router.push('/login'); }} className="text-right">
+                     <DropdownMenuItem onClick={() => { signOut(); router.push('/login'); }} className="text-right">
                       <LogOut className="w-4 h-4 mr-2" />
                       خروج
                     </DropdownMenuItem>
